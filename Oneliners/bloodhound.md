@@ -1,4 +1,4 @@
-# Bloodhound Oneliners
+# Bloodhound & Cypher Oneliners
 
 
 ## Excepciones a la politica de contrasenas de usuarios de Dominio

