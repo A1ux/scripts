@@ -32,7 +32,7 @@ enum4linux -U $ip | grep 'user:'
 
 ### OSINT | Username Anarchy | Kerbrute (Pendiente)
 
-https://github.com/urbanadventurer/username-anarchy
+[username-anarchy](https://github.com/urbanadventurer/username-anarchy)
 
 ```bash
 kerbrute userenum -d alux.cc usernames.txt
@@ -53,7 +53,7 @@ mitm6
 ```
 #### Windows
 
-https://github.com/Kevin-Robertson/Inveigh
+[Inveigh](https://github.com/Kevin-Robertson/Inveigh)
 
 ```powershell
 .\Inveigh.exe
