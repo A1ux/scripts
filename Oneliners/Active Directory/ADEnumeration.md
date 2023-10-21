@@ -105,6 +105,11 @@ proxychains python3 smbclient.py -no-pass 'DOMAINnotdotcom'/'username'@'$ip' -de
 proxychains python3 smbexec.py -no-pass 'DOMAINnotdotcom'/'username'@'$ip' -debug
 ```
 
+#### Mitm6 + ntlmrelayx to ldap (Pendiente)
+
+
+#### Coerced auth smb + ntlmrelayx to ldaps with drop the mic (Pendiente)
+
 ## Valid Username
 
 ### Password Spraying
