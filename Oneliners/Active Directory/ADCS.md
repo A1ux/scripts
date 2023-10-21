@@ -131,16 +131,6 @@ ESC9 refers to the new msPKI-Enrollment-Flag value CT_FLAG_NO_SECURITY_EXTENSION
 #### Conditions 
 
 - StrongCertificateBindingEnforcement set to 0
-
-#### Requisities
-- GenericWrite over any account A to compromise any account B
-
-
-> This is not a constraint violation, since the Administrator user’s userPrincipalName is Administrator@domain.com and not Administrator.
-
-#### Conditions 
-
-- StrongCertificateBindingEnforcement set to 0
 - Certificate contains the CT_FLAG_NO_SECURITY_EXTENSION flag in the msPKI-Enrollment-Flag value
 - Certificate specifies any client authentication EKU
 
