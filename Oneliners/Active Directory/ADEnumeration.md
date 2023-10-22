@@ -3,7 +3,7 @@
 Inspired by [Orange Cyberdefense](https://orange-cyberdefense.github.io/ocd-mindmaps/):
 and [Mayfly](https://mayfly277.github.io/categories/ad/)
 
-![Mindmap Pentest AD](image-1.png)
+![Mindmap Pentest AD](/Images/image-1.png)
 
 ## Reconocimiento
 

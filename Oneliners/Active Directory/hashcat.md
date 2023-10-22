@@ -1,7 +1,7 @@
 # Hashcat passwords
 
 
-![Alt text](image.png)
+![Alt text](/Images/image.png)
 
 
 ## Hashes NTLM
