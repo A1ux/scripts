@@ -194,6 +194,14 @@ certipy find -u user@domain.com -p 'pass' -vulnerable -dc-ip DCIP -stdout > cert
 crackmapexec smb smb.txt -u 'user' -p 'pass' --shares
 ```
 
+### Enum MachineAccountQuota 
+
+```bash
+crackmapexec ldap ip -u username -p password -d domain.com -M MAQ
+```
+
+
+
 ### Enum dns
 
 [dnstool.py](https://github.com/dirkjanm/krbrelayx/blob/master/dnstool.py)
