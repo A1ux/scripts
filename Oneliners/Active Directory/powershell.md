@@ -18,3 +18,10 @@ Get-ADGroupMember -Identity "Domain Admins" | Get-ADUser -Properties samaccountn
 ```powershell
 Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountname, Name, Enabled, PasswordNeverExpires | Select-Object samaccountname, Name, Enabled, PasswordNeverExpires | Export-Csv -Path .\users_expirepass.csv -NoTypeInformation 
 ```
+
+# Windows oneliners
+
+
+```powershell
+Get-ChildItem -Path C:\ -Filter "file.ext" -Recurse -ErrorAction SilentlyContinue
+```
