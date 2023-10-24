@@ -10,8 +10,10 @@ python3 genJSON_gnmap.py -d /path/directory -j file.json
 
 ## genNmapCommands.py
 
+Genera un comando para nmap en base al file.json generado con el script anterior
+
 ```bash
-python3 -f file.json -o nmapcommand.txt -c "nmap -vvv -Pn -p PORTS IP -oA IP"
+python3 -f file.json -o nmapcommand.txt -c "nmap -vvv -Pn -sV -sC -p PORTS IP -oA IP"
 ```
 
 ## genCustomCommands.py
