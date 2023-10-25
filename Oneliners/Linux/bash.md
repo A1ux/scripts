@@ -12,3 +12,10 @@ echo 'export PATH=$PATH:~/.local/bin:~/go/bin/' >> ~/.zshrc
 ```bash
 wget -O parser https://raw.githubusercontent.com/shifty0g/ultimate-nmap-parser/master/ultimate-nmap-parser.shh && chmod +x parser && mv parser /usr/local/bin/
 ```
+
+## Up server
+
+```bash
+ngrok config add-authtoken <TOKEN>
+ngrok http <PORT>
+```
