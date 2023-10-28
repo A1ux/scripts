@@ -1,9 +1,11 @@
-# Active Directory Post-Exploitation Findings
+# Powershell Commands
 
-## Cuentas genericas como administradores de Dominio
+## AD
+
+### Cuentas genericas como administradores de Dominio
 
 ```powershell
-Get-ADGroupMember -Identity "Domain Admins" | Get-ADUser -Properties samaccountname, Name, Enabled | Select-Object samaccountname, Name, Enabled
+Get-ADGroupMember -Identity "Domain Admins" -Recursive | Get-ADUser -Properties samaccountname, Name, Enabled | Select-Object samaccountname, Name, Enabled
 ```
 
 ## Cuentas de administradores de dominio no cumplen con las mejores practicas
@@ -13,13 +15,13 @@ Get-ADGroupMember -Identity "Domain Admins" | Get-ADUser -Properties samaccountn
 ```
 
 
-## Contrasenas de usuarios de dominio que no expiran y estan habilitadas
+### Contrasenas de usuarios de dominio que no expiran y estan habilitadas
 
 ```powershell
 Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountname, Name, Enabled, PasswordNeverExpires | Select-Object samaccountname, Name, Enabled, PasswordNeverExpires | Export-Csv -Path .\users_expirepass.csv -NoTypeInformation 
 ```
 
-# Windows oneliners
+## Windows oneliners
 
 
 ```powershell
