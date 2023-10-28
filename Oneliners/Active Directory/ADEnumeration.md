@@ -13,6 +13,12 @@ and [Mayfly](https://mayfly277.github.io/categories/ad/)
 nslookup -type=SRV _ldap._tcp.dc._msdcs.alux.cc
 ```
 
+### Enumerate the trusts
+
+```bash
+ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP trusts
+```
+
 ### Enumerar SMBs
 
 ```bash
