@@ -198,6 +198,9 @@ certipy find -u user@domain.com -p 'pass' -vulnerable -dc-ip DCIP -stdout > cert
 
 ```bash
 crackmapexec smb smb.txt -u 'user' -p 'pass' --shares
+## Listar smb y archivos 
+smbmap -r -d 'domain.com' -u 'username' -p 'password' -H ip --depth (default 5) --no-write-check
+smbmap -r -d 'domain.com' -u 'username' -p 'password' --host-file listIPs
 ```
 
 #### Create link 

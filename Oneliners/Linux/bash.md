@@ -1,5 +1,12 @@
 # ZSH/BASG
 
+## Listar smb y archivos 
+
+```bash
+smbmap -r -d 'domain.com' -u 'username' -p 'password' -H ip --depth (default 5)
+smbmap -r -d 'domain.com' -u 'username' -p 'password' --host-file listIPs
+```
+
 ## Leer de ips y ejecutar un comando o valor
 
 ```bash
