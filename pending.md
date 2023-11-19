@@ -1,6 +1,6 @@
 - [ ] Add zerologon attack
 - [ ] Add footholds
 - [ ] Add footholds services
-- [ ] Add recon smb files
+- [*] Add recon smb files
 - [ ] Add bypass AV
 - [ ] Add last Privilege Escalation

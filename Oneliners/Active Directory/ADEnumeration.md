@@ -198,9 +198,12 @@ certipy find -u user@domain.com -p 'pass' -vulnerable -dc-ip DCIP -stdout > cert
 
 ```bash
 crackmapexec smb smb.txt -u 'user' -p 'pass' --shares
-## Listar smb y archivos 
+## Listar smb y archivos
 smbmap -r -d 'domain.com' -u 'username' -p 'password' -H ip --depth (default 5) --no-write-check
 smbmap -r -d 'domain.com' -u 'username' -p 'password' --host-file listIPs
+# Search interesting files inside PC (need access to smb to compoter)
+sudo python3 ./scavenger.py smb -t 10.0.0.10 -u administrator -p Password123 -d test.local
+sudo python3 ./scavenger.py smb -t smb.txt -u administrator -p Password123 -d test.local
 ```
 
 #### Create link 
