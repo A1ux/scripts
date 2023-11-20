@@ -72,6 +72,10 @@ certipy template -u user@domain.com -p 'Password' - template <Template Name> -co
 
 ESC5 is when objects outside of certificate templates and the certificate authority itself can have a security impact on the entire AD CS system, for instance the CA server’s AD computer object or the CA server’s RPC/DCOM server. This escalation technique has not been implemented in Certipy, because it’s too abstract. However, if the CA server is compromised, you can perform the ESC7 escalation.
 
+```cmd
+certify.exe pkiobjects
+```
+
 ### EDITF_ATTRIBUTESUBJECTALTNAME2 - ESC6
 
 ESC6 is when the CA specifies the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This flag allows the enrollee to specify an arbitrary SAN on all certificates despite a certificate template's configuration. After the patch for reported vulnerability CVE-2022–26923, this technique no longer works alone, but must be combined with ESC10.

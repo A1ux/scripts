@@ -27,3 +27,9 @@ Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountna
 ```powershell
 Get-ChildItem -Path C:\ -Filter "file.ext" -Recurse -ErrorAction SilentlyContinue
 ```
+
+## Change Password of Administrator
+
+```powershell
+Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString -AsPlainText "Password" -Force)
+```
