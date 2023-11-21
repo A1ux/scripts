@@ -27,6 +27,13 @@ crackmapexec smb <ip_range>
 
 ## Enumeracion de Usuarios
 
+## Possible Users
+
+```bash
+# Tool https://gist.github.com/superkojiman/11076951
+python3 namemash.py >> usernames.txt
+```
+
 ### Null session
 
 ```bash
