@@ -11,6 +11,7 @@ and [Mayfly](https://mayfly277.github.io/categories/ad/)
 
 ```bash
 nslookup -type=SRV _ldap._tcp.dc._msdcs.alux.cc
+ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP all
 ```
 
 ### Enumerate the trusts
