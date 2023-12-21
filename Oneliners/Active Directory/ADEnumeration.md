@@ -160,6 +160,15 @@ python3 CVE-2022-33679.py domain.com/user <SERVER NAME>
 
 ## Valid Credentials
 
+### Check access to computers (Local Admin, PS remote, RDP)
+
+```bash
+crackmapexec smb smb.txt -u user -p pass -d domain.com
+crackmapexec winrm winrm.txt -u user -p pass -d domain.com
+crackmapexec rdp rdp.txt -u user -p pass -d domain.com
+```
+
+
 ### Bloodhound
 
 #### Linux
