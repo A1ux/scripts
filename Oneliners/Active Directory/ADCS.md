@@ -1,6 +1,6 @@
 # AD CS Domain Escalation
 
->> Si certipy funca mal con LDAPS usar `--scheme ldap`
+> Si certipy funca mal con LDAPS usar `--scheme ldap`
 
 ## Check vulnerabilities
 
