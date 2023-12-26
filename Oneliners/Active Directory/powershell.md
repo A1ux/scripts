@@ -26,7 +26,7 @@ Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountna
 ### Ping network
 
 ```powershell
-1..254 | ForEach-Object { $ip = "192.168.110.$_"; if (Test-Connection -ComputerName $ip -Count 1 -Quiet) { Write-Host "IP: $ip is Up" } }
+1..254 | ForEach-Object { $ip = "192.168.210.$_"; if (Test-Connection -ComputerName $ip -Count 1 -Quiet) { Write-Host "IP: $ip is Up" } }
 ```
 
 ### Search file

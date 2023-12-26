@@ -1,6 +1,15 @@
 # Trusts
 
+## Bloodhound dump
+
+
+```bash
+bloodhound-python -c All -u user@principaldomain.com -p 'P@ssw0rd' --zip -d secondDomain.local -ns secondDCIP
+```
+
 ## Domain Trust - child/parent
+
+
 
 ### Enumerate the trusts
 
@@ -83,3 +92,4 @@ MATCH p = (a:Domain)-[:Contains*1..]->(x)-->(w)-->(z)<--(y)<-[:Contains*1..]-(b:
 - https://mayfly277.github.io/posts/GOADv2-pwning-part12/
 - https://harmj0y.medium.com/a-guide-to-attacking-domain-trusts-ef5f8992bb9d
 - https://adsecurity.org/?p=1640
+- https://learn.microsoft.com/es-es/entra/identity/domain-services/concepts-forest-trust
