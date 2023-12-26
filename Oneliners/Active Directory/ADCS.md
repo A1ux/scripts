@@ -2,6 +2,20 @@
 
 > Si certipy funca mal con LDAPS usar `--scheme ldap`
 
+Y si falla algo con python usar docker
+
+```Dockerfile
+# Dockerfile
+FROM python:3.10.4-slim-buster
+RUN pip install --upgrade pip
+RUN pip install certipy-ad
+WORKDIR /tmp
+```
+
+```bash
+sudo docker run -it -v --rm certipy:latest certipy find -u user@domain.local -p 'newP@ssword2022' -vulnerable -ns 192.168.210.10 -bloodhound
+```
+
 ## Check vulnerabilities
 
 ```bash

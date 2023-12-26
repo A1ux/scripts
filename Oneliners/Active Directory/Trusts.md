@@ -2,14 +2,17 @@
 
 ## Bloodhound dump
 
-
 ```bash
 bloodhound-python -c All -u user@principaldomain.com -p 'P@ssw0rd' --zip -d secondDomain.local -ns secondDCIP
 ```
 
+## Check if my user is valid in the other forest.
+
+```bash
+crackmapexec smb secondForestIP -u user -p pass -d principalForest.local
+```
+
 ## Domain Trust - child/parent
-
-
 
 ### Enumerate the trusts
 
