@@ -124,3 +124,8 @@ go build Freeze.go
 # dll
 ./Freeze -I demon.x64.bin -encrypt -export FunctionDLL -O name.dll
 ```
+
+
+### References
+
+- https://neil-fox.github.io/Impacket-usage-&-detection/

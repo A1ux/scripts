@@ -21,6 +21,12 @@ Get-ADGroupMember -Identity "Domain Admins" | Get-ADUser -Properties samaccountn
 Get-ADGroupMember -Identity "Domain Users" | Get-ADUser -Properties samaccountname, Name, Enabled, PasswordNeverExpires | Select-Object samaccountname, Name, Enabled, PasswordNeverExpires | Export-Csv -Path .\users_expirepass.csv -NoTypeInformation 
 ```
 
+### Machine quota
+
+```powershell
+Get-ADDomain | Select-Object -ExpandProperty DistinguishedName | Get-ADObject -Properties 'ms-DS-MachineAccountQuota'
+```
+
 ## Windows oneliners
 
 ### Ping network

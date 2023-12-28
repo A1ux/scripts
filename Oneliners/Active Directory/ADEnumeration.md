@@ -91,7 +91,7 @@ Before starting responder to poison the answer to LLMNR, MDNS and NBT-NS request
 sed -i 's/HTTP = On/HTTP = Off/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'HTTP ='
 sed -i 's/SMB = On/SMB = Off/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'SMB ='
 #Revert process
-sed -i 's/HTTP = Off/HTTP = On/g' /etc/responder/Responder.conf && cat /etc/responder.conf | grep --color=never 'HTTP ='
+sed -i 's/HTTP = Off/HTTP = On/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'HTTP ='
 sed -i 's/SMB = Off/SMB = On/g' /etc/responder/Responder.conf && cat /etc/responder/Responder.conf | grep --color=never 'SMB ='
 ```
 

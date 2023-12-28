@@ -3,6 +3,13 @@
 
 ## Usuario
 
+### Obtener usuario y descripcion
+
+```c
+MATCH (u:User)
+RETURN u.samAccountName, u.description
+```
+
 ### Admins del Dominio
 
 > Usar mayuscula y en espanol "ADMINS. DEL DOMINIO"
