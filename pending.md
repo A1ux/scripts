@@ -1,5 +1,6 @@
 - [ ] Add zerologon attack
 - [ ] Add footholds
+- - Zabbix
 - [ ] Add footholds services
 - [*] Add recon smb files
 - [ ] Add bypass AV

