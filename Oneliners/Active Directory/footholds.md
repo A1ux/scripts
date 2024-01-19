@@ -10,6 +10,11 @@
 - [ ] Jenkins Administrator - Add build shell
 - [ ] 
 
+## Zerologon
+
+- [ ] https://github.com/dirkjanm/CVE-2020-1472
+  
+
 ## SMB
 
 - [ ] Check Eternal Blue `nmap -p445 --script smb-vuln-ms17-010 IP` or `auxiliary/scanner/smb/smb_ms17_010`
@@ -18,6 +23,10 @@
 ## Tomcat
 
 ## JBOSS
+
+## Splunk
+
+- [ ] If Admin Access: https://github.com/0xjpuff/reverse_shell_splunk
 
 ## Elastix
 

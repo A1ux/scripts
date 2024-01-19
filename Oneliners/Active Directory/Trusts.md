@@ -95,4 +95,5 @@ MATCH p = (a:Domain)-[:Contains*1..]->(x)-->(w)-->(z)<--(y)<-[:Contains*1..]-(b:
 - https://mayfly277.github.io/posts/GOADv2-pwning-part12/
 - https://harmj0y.medium.com/a-guide-to-attacking-domain-trusts-ef5f8992bb9d
 - https://adsecurity.org/?p=1640
+- https://www.thehacker.recipes/a-d/movement/trusts
 - https://learn.microsoft.com/es-es/entra/identity/domain-services/concepts-forest-trust

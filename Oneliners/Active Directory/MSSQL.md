@@ -1,5 +1,7 @@
 # MSSQL Exploitation
 
+> “SQL Login is for Authentication and SQL Server User is for Authorization. Authentication can decide if we have permissions to access the server or not and Authorization decides what are different operations we can do in a database. Login is created at the SQL Server instance level and User is created at the SQL Server database level. We can have multiple users from a different database connected to a single login to a server.”
+
 ## Enumeration
 
 ```bash

