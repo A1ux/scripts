@@ -223,6 +223,29 @@ sudo python3 ./scavenger.py smb -t 10.0.0.10 -u administrator -p Password123 -d 
 sudo python3 ./scavenger.py smb -t smb.txt -u administrator -p Password123 -d test.local
 ```
 
+### Enume QUOTA
+
+```bash
+crackmapexec ldap dcIP -u user -p pass -M MAQ
+ldeep ldap -s ldap://172.16.1.5 -u user -p 'passs' -d corp.local search '(&(objectClass=*)(distinguishedName=DC=corp,DC=local))' 'ms-DS-MachineAccountQuota'
+```
+
+```python
+import ldap3
+
+target_dn = "DC=corp,DC=local" # change this
+domain = "172.16.1.5" # change this
+username = "user" # change this
+password = "pass" # change this
+
+user = "{}\\{}".format(domain, username)
+server = ldap3.Server(domain)
+connection = ldap3.Connection(server = server, user = user, password = password, authentication = ldap3.NTLM)
+connection.bind()
+connection.search(target_dn,"(objectClass=*)", attributes=['ms-DS-MachineAccountQuota'])
+print(connection.entries[0])
+```
+
 #### Create link 
 
 ```bash
