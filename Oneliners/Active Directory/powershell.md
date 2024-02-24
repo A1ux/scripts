@@ -41,6 +41,12 @@ Get-ADDomain | Select-Object -ExpandProperty DistinguishedName | Get-ADObject -P
 Get-ChildItem -Path C:\ -Filter "file.ext" -Recurse -ErrorAction SilentlyContinue
 ```
 
+### Search files C:\Users Directory
+
+```powershell
+Get-ChildItem -Path C:\Users -Recurse -ErrorAction SilentlyContinue
+```
+
 ### Change Password of Administrator
 
 ```powershell
