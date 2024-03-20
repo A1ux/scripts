@@ -5,6 +5,8 @@ and [Mayfly](https://mayfly277.github.io/categories/ad/)
 
 ![Mindmap Pentest AD](/Images/image-1.png)
 
+> Default LMHASH aad3b435b51404eeaad3b435b51404ee
+
 ## Reconocimiento
 
 ### Enumerar AD
@@ -24,6 +26,7 @@ ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP trusts
 
 ```bash
 crackmapexec smb <ip_range>
+crackmapexec smb ip -u user -p pass -M gpp_autologin
 ```
 
 ## Enumeracion de Usuarios
