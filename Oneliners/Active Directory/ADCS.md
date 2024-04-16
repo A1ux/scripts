@@ -1,6 +1,8 @@
 # AD CS Domain Escalation
 
-> Si certipy funca mal con LDAPS usar `--scheme ldap`
+> Si certipy funca mal con LDAPS usar 
+
+`--scheme ldap` o `-scheme ldaps -ldap-channel-binding`
 
 Y si falla algo con python usar docker
 

