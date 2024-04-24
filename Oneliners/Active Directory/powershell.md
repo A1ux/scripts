@@ -104,3 +104,15 @@ Test-WSMan -Computername srv01.rastalabs.local
 (Get-FileHash -Path "C:\Windows\Temp\info.txt" -Algorithm MD5).Hash
 ```
 
+## Find .kdb and .kdbx files
+
+```powershell
+Get-ChildItem -Path C:\ -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Extension -eq ".kdbx" -or $_.Extension -eq ".kdb" }
+```
+
+## TCP COnnection
+
+```powershell
+Test-NetConnection -ComputerName <Dirección_IP> -Port <Número_Puerto>
+(New-Object System.Net.Sockets.TcpClient("127.0.0.1", "80")).Connected
+```

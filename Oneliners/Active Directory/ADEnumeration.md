@@ -16,6 +16,12 @@ nslookup -type=SRV _ldap._tcp.dc._msdcs.alux.cc
 ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP all
 ```
 
+### Configurar DNS
+
+```bash
+systemd-resolve --interface lateralmovement --set-dns DCIP --set-domain domain.com
+```
+
 ### Enumerate the trusts
 
 ```bash
