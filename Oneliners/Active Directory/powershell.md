@@ -116,3 +116,10 @@ Get-ChildItem -Path C:\ -Recurse -ErrorAction SilentlyContinue | Where-Object { 
 Test-NetConnection -ComputerName <Dirección_IP> -Port <Número_Puerto>
 (New-Object System.Net.Sockets.TcpClient("127.0.0.1", "80")).Connected
 ```
+
+## Change version
+
+```powershell
+PowerShell -Version 2
+$PSVersionTable.PSVersion
+```
