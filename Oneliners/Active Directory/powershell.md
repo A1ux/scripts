@@ -123,3 +123,14 @@ Test-NetConnection -ComputerName <Dirección_IP> -Port <Número_Puerto>
 PowerShell -Version 2
 $PSVersionTable.PSVersion
 ```
+
+## Add Exclusion Defender
+
+```powershell
+# Importar el módulo Defender
+Import-Module Defender
+# Agregar una carpeta a las exclusiones de Windows Defender
+Add-MpPreference -ExclusionPath "C:\Ruta\De\La\Carpeta"
+# Verificar que la exclusión se haya agregado correctamente
+Get-MpPreference
+```
