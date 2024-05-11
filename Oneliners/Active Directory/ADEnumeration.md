@@ -33,6 +33,7 @@ ldeep ldap -u username -p 'password' -d domain.com -s ldap://dcIP trusts
 ```bash
 crackmapexec smb <ip_range>
 crackmapexec smb ip -u user -p pass -M gpp_autologin
+Get-GPPPassword.py 'DOMAIN'/'USER':'PASSWORD'@'DOMAIN_CONTROLLER'
 ```
 
 ## Enumeracion de Usuarios
@@ -43,7 +44,7 @@ crackmapexec smb ip -u user -p pass -M gpp_autologin
 # Tool https://gist.github.com/superkojiman/11076951
 python3 namemash.py >> usernames.txt
 # RID Brute
-impacket-lookupsid -no-pass 'guest@domain.com' 20000
+impacket-lookupsid -no-pass 'guest@domain.com' 20000 -target-ip DCIP
 impacket-lookupsid -no-pass 'guest@domain.com' <8000> | grep SidTypeUser | cut -d' ' -f2 | cut -d'\' -f2 | tee users
 netexec smb DCIP -u guest -p '' --rid-brute
 ```

