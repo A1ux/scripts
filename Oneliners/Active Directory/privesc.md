@@ -33,3 +33,20 @@ end Function
     </BODY>
 </HTML>
 ```
+
+## Tools
+
+### Winpeas
+
+```powershell
+.\winpeas.exe cmd > winpeas.txt
+```
+
+### PrivescCheck
+
+- https://github.com/itm4n/PrivescCheck
+
+```
+. .\PrivescCheck.ps1; Invoke-PrivescCheck
+powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report PrivescCheck_$($env:COMPUTERNAME) -Format TXT,CSV,HTML,XML"
+```

