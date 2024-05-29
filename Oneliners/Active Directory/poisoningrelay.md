@@ -48,6 +48,8 @@ Start ntlmrelay
 - `-smb2support` : support for smb2
 - `-socks` : will start a socks proxy to use relayed authentication
 
+> Si tengo smb relay no puedo utilizarla en otro protocolo que no sea SMB
+
 ```bash
 #Install proxychains
 sudo apt install proxychains

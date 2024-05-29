@@ -82,9 +82,6 @@ use auxiliary/scanner/smb/smb_login
 crackmapexec smb $ip -u users.txt -p users.txt --no-bruteforce
 ```
 
-
-
-
 ## Valid Credentials
 
 ### Check access to computers (Local Admin, PS remote, RDP)

