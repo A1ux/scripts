@@ -31,14 +31,3 @@
 
 # Wordlist Creation
 
-## Creating Hashcat Keymap Walking
-
-```bash
-git clone https://github.com/hashcat/kwprocessor
-make
-#English
-./kwp basechars/medium.base keymaps/en-us.keymap routes/2-to-16-max-3-direction-changes.route -o wordlist.txt
-#Spanish
-./kwp basechars/medium.base keymaps/es.keymap routes/2-to-16-max-3-direction-changes.route -o wordlist.txt
-```
-
