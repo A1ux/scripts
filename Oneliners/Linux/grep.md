@@ -12,6 +12,12 @@ grep -v '(ip1|ip2)' nmapsp_and.txt
 grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 ```
 
+## Extraer urls
+
+```bash
+grep -Eo 'https?://[a-zA-Z0-9./?=_-]*'
+```
+
 ## grep sobre binarios
 
 ```bash

@@ -45,6 +45,14 @@ systemctl enable kibana
 ss -tulpn | grep 5601
 ```
 
+```bash
+/usr/share/kibana/bin/kibana-encryption-keys generate
+## Copy settings xpack
+nano /etc/kibana/kibana.yml
+## Paste settings xpack
+systemctl restart kibana
+```
+
 ## Nginx
 
 ### Install
@@ -93,15 +101,27 @@ cd /usr/local/etc/ssl/certs/elastic/
 wget http://edrserver/http_ca.crt
 ```
 
-6. Enroll Fleet Server and add 
+Add fleet server and add to the end
 
 ```bash
 --fleet-server-es-ca=/usr/local/etc/ssl/certs/elastic/http_ca.crt --insecure
 ```
 
+
 ### Agent
 
+Add agent and add to the end
 
+```bash
+--insecure
+```
+
+### Extensions
+
+1. Install all rules on Kibana Alerts (Elastic Rules)
+2. Install Windows Integrations
+3. Install Endpoint Security
+4. Instal Linux Integrations
 
 ### Troubleshooting 
 
