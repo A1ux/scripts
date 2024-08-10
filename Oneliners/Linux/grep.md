@@ -15,7 +15,7 @@ grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 ## Extraer urls
 
 ```bash
-grep -Eo 'https?://[a-zA-Z0-9./?=_-]*'
+grep -Eo 'https?://[a-zA-Z0-9./?=_-]*' 
 ```
 
 ## grep sobre binarios

