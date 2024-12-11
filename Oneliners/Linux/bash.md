@@ -16,8 +16,8 @@ while IFS= read -r ip; do echo $ip; done < ips.txt
 ## Add python and go bin paths
 
 ```bash
-echo 'export PATH=$PATH:~/.local/bin:~/go/bin/' >> ~/.bashrc
-echo 'export PATH=$PATH:~/.local/bin:~/go/bin/' >> ~/.zshrc
+echo 'export PATH=$PATH:$HOME/.local/bin:$HOME/go/bin/:$HOME/.cargo/bin' >> ~/.bashrc
+echo 'export PATH=$PATH:$HOME/.local/bin:$HOME/go/bin/:$HOME/.cargo/bin' >> ~/.zshrc
 ```
 
 ## ultimate-nmap-parser 
