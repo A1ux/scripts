@@ -97,7 +97,7 @@ RETURN n.samaccountname AS samaccountname,n.displayname AS name, n.enabled AS en
 
 ```c
 MATCH (n:User)-[:MemberOf*1..2]->(g:Group {name:'DOMAIN ADMINS@DOMAIN.COM'})
-RETURN n.samaccountname, n.displayname, n.enabled, n.pwslastset
+RETURN n.samaccountname, n.displayname, n.enabled, n.pwdlastset
 ```
 
 ### Sacar los usuarios que no son AdminCount 1, tienen generic all y no tienen admin local .
