@@ -1,5 +1,14 @@
 # Bloodhound & Cypher Oneliners
 
+## New CE Bloodhound
+
+- https://github.com/SpecterOps/BloodHound/blob/main/examples/docker-compose/docker-compose.yml
+
+```bash
+# Delete content
+docker volume rm $(docker volume ls -q | grep neo4j-data)
+```
+
 
 ## Usuario
 
@@ -11,7 +20,7 @@ RETURN u.samAccountName, u.description
 ```
 
 ### Admins del Dominio
-
+2
 > Usar mayuscula y en espanol "ADMINS. DEL DOMINIO"
 
 ```c
@@ -85,6 +94,7 @@ ORDER BY COUNT(DISTINCT(comps)) DESC
 ### Excepciones a la politica de contrasenas de usuarios de Dominio
 
 `=DATE(1970,1,1) + (A1 / 86400)`
+`=DATE(1970;1;1) + (A1 / 86400)`
 
 Cuando la request de powershell es excedida
 

