@@ -2,7 +2,7 @@
 
 ## New CE Bloodhound
 
-- https://github.com/SpecterOps/BloodHound/blob/main/examples/docker-compose/docker-compose.yml
+- https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/docker-compose.yml
 
 ```bash
 # Delete content
