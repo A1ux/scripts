@@ -709,6 +709,9 @@ Invoke-EnumerateAzureBlobs -Base <name>
 ```
 
 ```powershell
+# List storage accounts
+Get-AzStorageAccount | fl 
+# GEt Storage content
 Get-AzResource
 Get-AzStorageContainer -Context (New-AzStorageContext -StorageAccountName defcorpcodebackup)
 ```
