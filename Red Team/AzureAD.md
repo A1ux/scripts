@@ -759,7 +759,7 @@ Using the user with the permissions "Automation Admins"
 
 ```bash
 az account get-access-token
-az account get-access-token --resource-type aad-graph
+az account get-access-token --resource-type ms-graph
 $AADToken = 'eyJ0…'
 $AccessToken = 'eyJ0…'
 Connect-AzAccount -AccessToken $AccessToken -GraphAccessToken $AADToken -AccountId <user object ID>
@@ -791,6 +791,9 @@ Connect-AzAccount -AccessToken $token -AccountId 2e91a4fe-a0f2-46ee-8214-fa2ff6a
 ```powershell
 Get-AzKeyVault
 Get-AzKeyVault -VaultName ResearchKeyVault
+#List
+Get-AzKeyVaultSecret -VaultName "ext-contractors" | Select-Object Name
+# Get Secret
 Get-AzKeyVaultSecret -VaultName ResearchKeyVault -Name Reader –AsPlainText
 ```
 

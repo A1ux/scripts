@@ -134,3 +134,9 @@ Add-MpPreference -ExclusionPath "C:\Ruta\De\La\Carpeta"
 # Verificar que la exclusión se haya agregado correctamente
 Get-MpPreference
 ```
+
+## List Antivirus installed
+
+```powershell
+(Get-CimInstance -Namespace "root/SecurityCenter2" -ClassName AntiVirusProduct).productState -as [System.String]
+```
