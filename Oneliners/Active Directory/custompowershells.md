@@ -14,3 +14,11 @@ $GroupMembers | ForEach-Object {
     }
 }
 ```
+
+## Password Policy Exceptions
+
+```powershell
+Get-DomainUser -Properties SamAccountName, DisplayName, userAccountControl, pwdLastSet | 
+Where-Object { $_.userAccountControl -notmatch "ACCOUNTDISABLE" } | 
+Select-Object SamAccountName, DisplayName, pwdLastSet
+```
