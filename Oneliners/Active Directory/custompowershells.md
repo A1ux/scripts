@@ -21,4 +21,10 @@ $GroupMembers | ForEach-Object {
 Get-DomainUser -Properties SamAccountName, DisplayName, userAccountControl, pwdLastSet | 
 Where-Object { $_.userAccountControl -notmatch "ACCOUNTDISABLE" } | 
 Select-Object SamAccountName, DisplayName, pwdLastSet
+
+Get-DomainUser -Properties SamAccountName, DisplayName, userAccountControl, pwdLastSet | 
+Where-Object { $_.userAccountControl -notmatch "ACCOUNTDISABLE" } | 
+Select-Object SamAccountName, DisplayName, pwdLastSet, 
+    @{n='PasswordNeverExpires';e={$_.userAccountControl -match "DONT_EXPIRE_PASSWORD"}}
+
 ```
